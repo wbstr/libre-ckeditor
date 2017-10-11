@@ -30,7 +30,9 @@ var CKBUILDER_CONFIG = {
 		'node_modules',
 		'package.json',
 		'README.md',
-		'tests'
+		'tests',
+                'nbproject',
+                'samples'
 	],
 	plugins : {
 		'wysiwygarea' : 1,

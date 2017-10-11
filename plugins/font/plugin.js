@@ -36,7 +36,6 @@
 			label: lang.label,
 			title: lang.panelTitle,
 			toolbar: 'styles,' + order,
-			defaultValue: 'cke-default',
 			allowedContent: style,
 			requiredContent: style,
 			contentTransformations: [
@@ -88,16 +87,11 @@
 			},
 
 			init: function() {
-				var name,
-					defaultText = '(' + editor.lang.common.optionDefault + ')';
-
 				this.startGroup( lang.panelTitle );
 
-				// Add `(Default)` item as a first element on the drop-down list.
-				this.add( this.defaultValue, defaultText, defaultText );
-
 				for ( var i = 0; i < names.length; i++ ) {
-					name = names[ i ];
+					var name = names[ i ];
+
 					// Add the tag entry to the panel list.
 					this.add( name, styles[ name ].buildPreview(), name );
 				}
@@ -108,34 +102,27 @@
 				editor.fire( 'saveSnapshot' );
 
 				var previousValue = this.getValue(),
-					style = styles[ value ],
-					previousStyle,
-					range,
-					path,
-					matching,
-					startBoundary,
-					endBoundary,
-					node,
-					bm;
+					style = styles[ value ];
 
 				// When applying one style over another, first remove the previous one (http://dev.ckeditor.com/ticket/12403).
 				// NOTE: This is only a temporary fix. It will be moved to the styles system (http://dev.ckeditor.com/ticket/12687).
 				if ( previousValue && value != previousValue ) {
-					previousStyle = styles[ previousValue ];
-					range = editor.getSelection().getRanges()[ 0 ];
+					var previousStyle = styles[ previousValue ],
+						range = editor.getSelection().getRanges()[ 0 ];
 
 					// If the range is collapsed we can't simply use the editor.removeStyle method
 					// because it will remove the entire element and we want to split it instead.
 					if ( range.collapsed ) {
-						path = editor.elementPath();
-						// Find the style element.
-						matching = path.contains( function( el ) {
-							return previousStyle.checkElementRemovable( el );
-						} );
+						var path = editor.elementPath(),
+							// Find the style element.
+							matching = path.contains( function( el ) {
+								return previousStyle.checkElementRemovable( el );
+							} );
 
 						if ( matching ) {
-							startBoundary = range.checkBoundaryOfElement( matching, CKEDITOR.START );
-							endBoundary = range.checkBoundaryOfElement( matching, CKEDITOR.END );
+							var startBoundary = range.checkBoundaryOfElement( matching, CKEDITOR.START ),
+								endBoundary = range.checkBoundaryOfElement( matching, CKEDITOR.END ),
+								node, bm;
 
 							// If we are at both boundaries it means that the element is empty.
 							// Remove it but in a way that we won't lose other empty inline elements inside it.
@@ -170,13 +157,7 @@
 					}
 				}
 
-				if ( value === this.defaultValue ) {
-					if ( previousStyle ) {
-						editor.removeStyle( previousStyle );
-					}
-				} else if ( value !== previousValue ) {
-					editor.applyStyle( style );
-				}
+				editor[ previousValue == value ? 'removeStyle' : 'applyStyle' ]( style );
 
 				editor.fire( 'saveSnapshot' );
 			},
