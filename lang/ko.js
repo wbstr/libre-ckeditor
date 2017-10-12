@@ -112,8 +112,6 @@ CKEDITOR.lang[ 'ko' ] = {
 		},
 
 		// Prepended to ARIA labels with shortcuts.
-		keyboardShortcut: '키보드 단축키',
-
-		optionDefault: 'Default' // MISSING
+		keyboardShortcut: '키보드 단축키'
 	}
 };

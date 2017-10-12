@@ -85,7 +85,7 @@
 		 * {@link CKEDITOR.editor#method-focus} instead.
 		 *
 		 *		var editor = CKEDITOR.instances.editor1;
-		 *		editor.focusManager.focus( editor.editable() );
+		 *		editor.focusManage.focus( editor.editable() );
 		 *
 		 * @param {CKEDITOR.dom.element} [currentActive] The new value of the {@link #currentActive} property.
 		 * @member CKEDITOR.focusManager

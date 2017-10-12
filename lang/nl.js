@@ -112,8 +112,6 @@ CKEDITOR.lang[ 'nl' ] = {
 		},
 
 		// Prepended to ARIA labels with shortcuts.
-		keyboardShortcut: 'Sneltoets',
-
-		optionDefault: 'Default' // MISSING
+		keyboardShortcut: 'Sneltoets'
 	}
 };

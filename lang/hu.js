@@ -112,8 +112,6 @@ CKEDITOR.lang[ 'hu' ] = {
 		},
 
 		// Prepended to ARIA labels with shortcuts.
-		keyboardShortcut: 'Gyorsbillentyű',
-
-		optionDefault: 'Default' // MISSING
+		keyboardShortcut: 'Gyorsbillentyű'
 	}
 };

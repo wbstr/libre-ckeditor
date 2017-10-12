@@ -112,8 +112,6 @@ CKEDITOR.lang[ 'el' ] = {
 		},
 
 		// Prepended to ARIA labels with shortcuts.
-		keyboardShortcut: 'Συντόμευση πληκτρολογίου',
-
-		optionDefault: 'Default' // MISSING
+		keyboardShortcut: 'Συντόμευση πληκτρολογίου'
 	}
 };

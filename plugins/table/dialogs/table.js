@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
@@ -51,6 +51,8 @@
 			};
 
 		var editable = editor.editable();
+
+		var dialogadvtab = editor.plugins.dialogadvtab;
 
 		return {
 			title: editor.lang.table.title,
@@ -218,8 +220,8 @@
 					}
 
 					// Set the width and height.
-                                        info.txtWidth ? table.setAttribute("width", info.txtWidth) : table.removeAttribute("width");
-                                        info.txtHeight ? table.setAttribute("height", info.txtHeight) : table.removeAttribute("height");
+					info.txtHeight ? table.setStyle( 'height', info.txtHeight ) : table.removeStyle( 'height' );
+					info.txtWidth ? table.setStyle( 'width', info.txtWidth ) : table.removeStyle( 'width' );
 
 					if ( !table.getAttribute( 'style' ) )
 						table.removeAttribute( 'style' );
@@ -385,7 +387,7 @@
 									styles && styles.updateStyle( 'width', this.getValue() );
 								},
 								setup: function( selectedTable ) {
-									var val = selectedTable.getAttribute( 'width' );
+									var val = selectedTable.getStyle( 'width' );
 									this.setValue( val );
 								},
 								commit: commitValue
@@ -410,7 +412,7 @@
 								},
 
 								setup: function( selectedTable ) {
-									var val = selectedTable.getAttribute( 'height' );
+									var val = selectedTable.getStyle( 'height' );
 									val && this.setValue( val );
 								},
 								commit: commitValue
@@ -509,9 +511,26 @@
 									captionElement.getItem( i ).remove();
 							}
 						}
+					},
+					{
+						type: 'text',
+						id: 'txtSummary',
+						bidi: true,
+						requiredContent: 'table[summary]',
+						label: editor.lang.table.summary,
+						setup: function( selectedTable ) {
+							this.setValue( selectedTable.getAttribute( 'summary' ) || '' );
+						},
+						commit: function( data, selectedTable ) {
+							if ( this.getValue() )
+								selectedTable.setAttribute( 'summary', this.getValue() );
+							else
+								selectedTable.removeAttribute( 'summary' );
+						}
 					} ]
 				} ]
-			}
+			},
+			dialogadvtab && dialogadvtab.createAdvancedTab( editor, null, 'table' )
 		] };
 	}
 

@@ -112,8 +112,6 @@ CKEDITOR.lang[ 'zh-cn' ] = {
 		},
 
 		// Prepended to ARIA labels with shortcuts.
-		keyboardShortcut: '快捷键',
-
-		optionDefault: 'Default' // MISSING
+		keyboardShortcut: '快捷键'
 	}
 };

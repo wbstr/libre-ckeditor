@@ -112,8 +112,6 @@ CKEDITOR.lang[ 'eo' ] = {
 		},
 
 		// Prepended to ARIA labels with shortcuts.
-		keyboardShortcut: 'Fulmoklavo',
-
-		optionDefault: 'Default' // MISSING
+		keyboardShortcut: 'Fulmoklavo'
 	}
 };

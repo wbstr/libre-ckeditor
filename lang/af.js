@@ -112,8 +112,6 @@ CKEDITOR.lang[ 'af' ] = {
 		},
 
 		// Prepended to ARIA labels with shortcuts.
-		keyboardShortcut: 'Sleutel kombenasie',
-
-		optionDefault: 'Default' // MISSING
+		keyboardShortcut: 'Sleutel kombenasie'
 	}
 };

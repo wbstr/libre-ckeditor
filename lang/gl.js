@@ -112,8 +112,6 @@ CKEDITOR.lang[ 'gl' ] = {
 		},
 
 		// Prepended to ARIA labels with shortcuts.
-		keyboardShortcut: 'Atallo de teclado',
-
-		optionDefault: 'Default' // MISSING
+		keyboardShortcut: 'Atallo de teclado'
 	}
 };

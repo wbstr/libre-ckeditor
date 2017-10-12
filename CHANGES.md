@@ -1,33 +1,6 @@
 ﻿CKEditor 4 Changelog
 ====================
 
-## CKEditor 4.8
-
-New Features:
-
-* [#607](https://github.com/ckeditor/ckeditor-dev/issues/607): Manually inserted hex color is prefixed with hash tag if needed. It ensures a valid hex color is used when setting table cell border or background color via [Color Dialog](http://ckeditor.com/addon/colordialog) window.
-* [#584](https://github.com/ckeditor/ckeditor-dev/issues/584): [Font size and Family](http://ckeditor.com/addon/font) and [Format](http://ckeditor.com/addon/format) drop-downs are not toggleable anymore. Default option to reset styles added.
-* [#856](https://github.com/ckeditor/ckeditor-dev/issues/856): Introduced [`CKEDITOR.tools.keystrokeToArray`](https://docs.ckeditor.com/ckeditor-docs/build/#!/api/CKEDITOR.tools-method-keystrokeToArray). It converts given keystroke into its string representation, returning every key name as separate array element.
-
-Fixed Issues:
-
-* [#796](https://github.com/ckeditor/ckeditor-dev/issues/796): Fixed: List is pasted from OneNote in a reversed order.
-* [#834](https://github.com/ckeditor/ckeditor-dev/issues/834): [IE9-11] Fixed: Editor does not save selected state of radiobuttons inserted by [Form Elements](https://ckeditor.com/addon/forms) plugin.
-* [#704](https://github.com/ckeditor/ckeditor-dev/issues/704): [Edge] Fixed: Using `Ctrl/Cmd + Z` breaks widgets structure.
-* [#591](https://github.com/ckeditor/ckeditor-dev/issues/591): Fixed: Column is inserted in a wrong order inside table if any cell has a vertical split.
-* [#787](https://github.com/ckeditor/ckeditor-dev/issues/787): Fixed: Using cut inside nested table does not cut selected content.
-* [#842](https://github.com/ckeditor/ckeditor-dev/issues/842): Fixed: List style not restored when toggling list indent level in [Indent List](http://ckeditor.com/addon/indentlist) plugin.
-* [#711](https://github.com/ckeditor/ckeditor-dev/issues/711): Fixed: Dragging widgets should only work with left mouse button.
-* [#862](https://github.com/ckeditor/ckeditor-dev/issues/862): Fixed: "Object Styles" group in [Styles Combo](https://ckeditor.com/addon/stylescombo) plugin is visible only if whole element is selected.
-* [#994](https://github.com/ckeditor/ckeditor-dev/pull/994): Fixed: Typo in [`CKEDITOR.focusManager.focus`](https://docs.ckeditor.com/#!/api/CKEDITOR.focusManager-method-focus) API documentation. Thanks to [benjy](https://github.com/benjy)!
-* [#1014](https://github.com/ckeditor/ckeditor-dev/issues/1014): Fixed: [Table Tools](https://ckeditor.com/addon/tabletools) cell properties dialog is now [ACF](http://docs.ckeditor.com/#!/guide/dev_acf) aware - it not possible to change cell width/height if corresponding styles are disabled.
-* [#877](https://github.com/ckeditor/ckeditor-dev/issues/877): Fixed: Lists with custom bullets with exotic characters crashes editor when [pasted from Word](http://ckeditor.com/addon/pastefromword).
-* [#605](https://github.com/ckeditor/ckeditor-dev/issues/605): Fixed: Inline widgets do not preserve trailing spaces.
-
-Other Changes:
-
-* [#815](https://github.com/ckeditor/ckeditor-dev/issues/815): Removed Node.js dependency from CKEditor build script.
-
 ## CKEditor 4.7.3
 
 New Features:

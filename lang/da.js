@@ -112,8 +112,6 @@ CKEDITOR.lang[ 'da' ] = {
 		},
 
 		// Prepended to ARIA labels with shortcuts.
-		keyboardShortcut: 'Tastatur genvej',
-
-		optionDefault: 'Default' // MISSING
+		keyboardShortcut: 'Tastatur genvej'
 	}
 };

@@ -1313,9 +1313,12 @@
 		},
 
 		/**
-		 * Converts a keystroke to its string representation. Returns exactly the same
-		 * members as {@link #keystrokeToArray}, but returned object contains strings of
-		 * keys joined with "+" rather than an array of keystrokes.
+		 * Converts a keystroke to its string representation. Returns an object with two fields:
+		 *
+		 * * `display` &ndash; A string that should be used for visible labels.
+		 * For Mac devices it uses `⌥` for `ALT`, `⇧` for `SHIFT` and `⌘` for `COMMAND`.
+		 * * `aria` &ndash; A string that should be used for ARIA descriptions.
+		 * It does not use special characters such as `⌥`, `⇧` or `⌘`.
 		 *
 		 * 		var lang = editor.lang.common.keyboard;
 		 * 		var shortcut = CKEDITOR.tools.keystrokeToString( lang, CKEDITOR.CTRL + 88 );
@@ -1325,36 +1328,9 @@
 		 * @since 4.6.0
 		 * @param {Object} lang A language object with the key name translation.
 		 * @param {Number} keystroke The keystroke to convert.
-		 * @returns {{display: String, aria: String}} See {@link #keystrokeToArray}.
+		 * @returns {{display: String, aria: String}}
 		 */
 		keystrokeToString: function( lang, keystroke ) {
-			var ret = this.keystrokeToArray( lang, keystroke );
-
-			ret.display = ret.display.join( '+' );
-			ret.aria = ret.aria.join( '+' );
-
-			return ret;
-		},
-
-		/**
-		 * Converts a keystroke to its string representation. Returns an object with two fields:
-		 *
-		 * * `display` &ndash; An array of strings that should be used for visible labels.
-		 * For Mac devices it uses `⌥` for `ALT`, `⇧` for `SHIFT` and `⌘` for `COMMAND`.
-		 * * `aria` &ndash; An array of strings that should be used for ARIA descriptions.
-		 * It does not use special characters such as `⌥`, `⇧` or `⌘`.
-		 *
-		 * 		var lang = editor.lang.common.keyboard;
-		 * 		var shortcut = CKEDITOR.tools.keystrokeToArray( lang, CKEDITOR.CTRL + 88 );
-		 * 		console.log( shortcut.display ); // [ 'CTRL', 'X' ], on Mac [ '⌘', 'X' ].
-		 * 		console.log( shortcut.aria ); // [ 'CTRL', 'X' ], on Mac [ 'COMMAND', 'X' ].
-		 *
-		 * @since 4.8.0
-		 * @param {Object} lang A language object with the key name translation.
-		 * @param {Number} keystroke The keystroke to convert.
-		 * @returns {{display: String[], aria: String[]}}
-		 */
-		keystrokeToArray: function( lang, keystroke ) {
 			var special = keystroke & 0xFF0000,
 				key = keystroke & 0x00FFFF,
 				isMac = CKEDITOR.env.mac,
@@ -1392,8 +1368,8 @@
 			}
 
 			return {
-				display: display,
-				aria: aria
+				display: display.join( '+' ),
+				aria: aria.join( '+' )
 			};
 		},
 

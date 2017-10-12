@@ -111,8 +111,6 @@ CKEDITOR.lang[ 'id' ] = {
 		},
 
 		// Prepended to ARIA labels with shortcuts.
-		keyboardShortcut: 'Pintasan Keyboard',
-
-		optionDefault: 'Default' // MISSING
+		keyboardShortcut: 'Pintasan Keyboard'
 	}
 };
