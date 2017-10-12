@@ -13,10 +13,10 @@
  * (1) http://ckeditor.com/builder
  *     Visit online builder to build CKEditor from scratch.
  *
- * (2) http://ckeditor.com/builder/d5d136f029ce6b56dbff490c09fbf9be
+ * (2) http://ckeditor.com/builder/cec9531b629aa74f82977849914969c5
  *     Visit online builder to build CKEditor, starting with the same setup as before.
  *
- * (3) http://ckeditor.com/builder/download/d5d136f029ce6b56dbff490c09fbf9be
+ * (3) http://ckeditor.com/builder/download/cec9531b629aa74f82977849914969c5
  *     Straight download link to the latest version of CKEditor (Optimized) with the same setup as before.
  *
  * NOTE:
@@ -26,7 +26,7 @@
 
 var CKBUILDER_CONFIG = {
 	skin: 'moono-lisa',
-	preset: 'full',
+	preset: 'standard',
 	ignore: [
 		'.DS_Store',
 		'.bender',
@@ -39,30 +39,32 @@ var CKBUILDER_CONFIG = {
 		'.jshintrc',
 		'.mailmap',
 		'.travis.yml',
-		'README.md',
 		'bender-err.log',
 		'bender-out.log',
 		'bender.ci.js',
 		'bender.js',
 		'dev',
-		'docs',
 		'gruntfile.js',
 		'less',
 		'node_modules',
 		'package.json',
-		'tests',
-                'nbproject'
+		'tests'
 	],
 	plugins : {
-		'base64image' : 1,
 		'basicstyles' : 1,
+		'clipboard' : 1,
+		'contextmenu' : 1,
 		'indentlist' : 1,
-		'justify' : 1,
 		'list' : 1,
+		'resize' : 1,
+		'showborders' : 1,
 		'table' : 1,
+		'tableselection' : 1,
+		'tabletools' : 1,
 		'toolbar' : 1,
 		'undo' : 1,
-		'wysiwygarea' : 1
+		'wysiwygarea' : 1,
+		'base64image': 1
 	},
 	languages : {
 		'en' : 1,
