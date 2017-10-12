@@ -54,7 +54,6 @@ var CKBUILDER_CONFIG = {
                 'nbproject'
 	],
 	plugins : {
-		'autogrow' : 1,
 		'base64image' : 1,
 		'basicstyles' : 1,
 		'indentlist' : 1,
