@@ -57,7 +57,6 @@ var CKBUILDER_CONFIG = {
 		'autogrow' : 1,
 		'base64image' : 1,
 		'basicstyles' : 1,
-		'font' : 1,
 		'indentlist' : 1,
 		'justify' : 1,
 		'list' : 1,
