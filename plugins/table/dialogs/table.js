@@ -397,7 +397,6 @@
 							children: [ {
 								type: 'text',
 								id: 'txtHeight',
-								requiredContent: 'table{height}',
 								controlStyle: 'width:5em',
 								label: editor.lang.common.height,
 								title: editor.lang.common.cssLengthTooltip,
