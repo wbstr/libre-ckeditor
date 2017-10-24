@@ -785,7 +785,7 @@
 			}
 
 			addCmd( 'cellProperties', new CKEDITOR.dialogCommand( 'cellProperties', createDef( {
-				allowedContent: 'td th{border-color,background-color,white-space,vertical-align,text-align}[width,height,colspan,rowspan]',
+				allowedContent: 'td th{border-color,background-color,white-space,text-align}[width,height,colspan,rowspan,valign]',
 				requiredContent: 'table',
 				contentTransformations: [ [ {
 						element: 'td',

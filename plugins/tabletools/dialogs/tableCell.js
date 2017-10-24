@@ -281,11 +281,9 @@ CKEDITOR.dialog.add( 'cellProperties', function( editor ) {
 							var value = this.getValue();
 
 							if ( value )
-								element.setStyle( 'vertical-align', value );
+								element.setAttribute( 'valign', value );
 							else
-								element.removeStyle( 'vertical-align' );
-
-							element.removeAttribute( 'vAlign' );
+								element.removeAttribute( 'valign' );
 						}
 					} ]
 				},
