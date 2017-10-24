@@ -48,7 +48,8 @@ var CKBUILDER_CONFIG = {
 		'less',
 		'node_modules',
 		'package.json',
-		'tests'
+		'tests',
+		'nbproject'
 	],
 	plugins : {
 		'autogrow' : 1,
