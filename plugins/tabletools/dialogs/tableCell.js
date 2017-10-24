@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
@@ -10,6 +10,7 @@ CKEDITOR.dialog.add( 'cellProperties', function( editor ) {
 		validate = CKEDITOR.dialog.validate,
 		widthPattern = /^(\d+(?:\.\d+)?)(px|%)$/,
 		spacer = { type: 'html', html: '&nbsp;' },
+		hiddenSpacer,
 		rtl = editor.lang.dir == 'rtl',
 		colorDialog = editor.plugins.colordialog;
 
@@ -81,6 +82,7 @@ CKEDITOR.dialog.add( 'cellProperties', function( editor ) {
 							type: 'text',
 							id: 'width',
 							width: '100px',
+							requiredContent: 'td[width,height]',
 							label: langCommon.width,
 							validate: validate.number( langCell.invalidWidth ),
 
@@ -111,17 +113,16 @@ CKEDITOR.dialog.add( 'cellProperties', function( editor ) {
 									unit = this.getDialog().getValueOf( 'info', 'widthType' ) || getCellWidthType( element );
 
 								if ( !isNaN( value ) )
-									element.setStyle( 'width', value + unit );
+                                                                    element.setAttribute( 'width', value + unit );
 								else
-									element.removeStyle( 'width' );
-
-								element.removeAttribute( 'width' );
+                                                                    element.removeAttribute( 'width' );
 							},
 							'default': ''
 						},
 						{
 							type: 'select',
 							id: 'widthType',
+							requiredContent: 'td[width,height]',
 							label: editor.lang.table.widthUnit,
 							labelStyle: 'visibility:hidden',
 							'default': 'px',
@@ -138,6 +139,7 @@ CKEDITOR.dialog.add( 'cellProperties', function( editor ) {
 						children: [ {
 							type: 'text',
 							id: 'height',
+							requiredContent: 'td[width,height]',
 							label: langCommon.height,
 							width: '100px',
 							'default': '',
@@ -149,6 +151,13 @@ CKEDITOR.dialog.add( 'cellProperties', function( editor ) {
 									labelElement = heightType.getElement(),
 									inputElement = this.getInputElement(),
 									ariaLabelledByAttr = inputElement.getAttribute( 'aria-labelledby' );
+
+								if ( this.getDialog().getContentElement( 'info', 'height' ).isVisible() ) {
+									labelElement.setHtml( '<br />' + langTable.widthPx );
+									labelElement.setStyle( 'display', 'block' );
+
+									this.getDialog().getContentElement( 'info', 'hiddenSpacer' ).getElement().setStyle( 'display', 'block' );
+								}
 
 								inputElement.setAttribute( 'aria-labelledby', [ ariaLabelledByAttr, labelElement.$.id ].join( ' ' ) );
 							},
@@ -174,10 +183,16 @@ CKEDITOR.dialog.add( 'cellProperties', function( editor ) {
 						{
 							id: 'htmlHeightType',
 							type: 'html',
-							html: '<br />' + langTable.widthPx
+							html: '',
+							style: 'display: none'
 						} ]
 					},
-					spacer,
+					hiddenSpacer = {
+						type: 'html',
+						id: 'hiddenSpacer',
+						html: '&nbsp;',
+						style: 'display: none'
+					},
 					{
 						type: 'select',
 						id: 'wordWrap',

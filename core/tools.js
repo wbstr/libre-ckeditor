@@ -1313,12 +1313,9 @@
 		},
 
 		/**
-		 * Converts a keystroke to its string representation. Returns an object with two fields:
-		 *
-		 * * `display` &ndash; A string that should be used for visible labels.
-		 * For Mac devices it uses `⌥` for `ALT`, `⇧` for `SHIFT` and `⌘` for `COMMAND`.
-		 * * `aria` &ndash; A string that should be used for ARIA descriptions.
-		 * It does not use special characters such as `⌥`, `⇧` or `⌘`.
+		 * Converts a keystroke to its string representation. Returns exactly the same
+		 * members as {@link #keystrokeToArray}, but returned object contains strings of
+		 * keys joined with "+" rather than an array of keystrokes.
 		 *
 		 * 		var lang = editor.lang.common.keyboard;
 		 * 		var shortcut = CKEDITOR.tools.keystrokeToString( lang, CKEDITOR.CTRL + 88 );
@@ -1328,9 +1325,36 @@
 		 * @since 4.6.0
 		 * @param {Object} lang A language object with the key name translation.
 		 * @param {Number} keystroke The keystroke to convert.
-		 * @returns {{display: String, aria: String}}
+		 * @returns {{display: String, aria: String}} See {@link #keystrokeToArray}.
 		 */
 		keystrokeToString: function( lang, keystroke ) {
+			var ret = this.keystrokeToArray( lang, keystroke );
+
+			ret.display = ret.display.join( '+' );
+			ret.aria = ret.aria.join( '+' );
+
+			return ret;
+		},
+
+		/**
+		 * Converts a keystroke to its string representation. Returns an object with two fields:
+		 *
+		 * * `display` &ndash; An array of strings that should be used for visible labels.
+		 * For Mac devices it uses `⌥` for `ALT`, `⇧` for `SHIFT` and `⌘` for `COMMAND`.
+		 * * `aria` &ndash; An array of strings that should be used for ARIA descriptions.
+		 * It does not use special characters such as `⌥`, `⇧` or `⌘`.
+		 *
+		 * 		var lang = editor.lang.common.keyboard;
+		 * 		var shortcut = CKEDITOR.tools.keystrokeToArray( lang, CKEDITOR.CTRL + 88 );
+		 * 		console.log( shortcut.display ); // [ 'CTRL', 'X' ], on Mac [ '⌘', 'X' ].
+		 * 		console.log( shortcut.aria ); // [ 'CTRL', 'X' ], on Mac [ 'COMMAND', 'X' ].
+		 *
+		 * @since 4.8.0
+		 * @param {Object} lang A language object with the key name translation.
+		 * @param {Number} keystroke The keystroke to convert.
+		 * @returns {{display: String[], aria: String[]}}
+		 */
+		keystrokeToArray: function( lang, keystroke ) {
 			var special = keystroke & 0xFF0000,
 				key = keystroke & 0x00FFFF,
 				isMac = CKEDITOR.env.mac,
@@ -1368,8 +1392,8 @@
 			}
 
 			return {
-				display: display.join( '+' ),
-				aria: aria.join( '+' )
+				display: display,
+				aria: aria
 			};
 		},
 
@@ -1967,6 +1991,59 @@
 				}
 
 				return null;
+			},
+
+			/**
+			 * Merges two objects and returns new one.
+			 *
+			 *		var obj1 = {
+			 *				a: 1,
+			 *				conflicted: 10,
+			 *				obj: {
+			 *					c: 1
+			 *				}
+			 *			},
+			 *			obj2 = {
+			 *				b: 2,
+			 *				conflicted: 20,
+			 *				obj: {
+			 *					d: 2
+			 *				}
+			 *			};
+			 *
+			 *		CKEDITOR.tools.object.merge( obj1, obj2 );
+			 *
+			 * This code produces the following object;
+			 *
+			 *		{
+			 *			a: 1,
+			 *			b: 2,
+			 *			conflicted: 20,
+			 *			obj: {
+			 *				c: 1,
+			 *				d: 2
+			 *			}
+			 *		}
+			 *
+			 * @param {Object} obj1 Source object, which will be used to create a new base object.
+			 * @param {Object} obj2 An object, which properties will be merged to the base one.
+			 * @returns {Object} Merged object.
+			 * @member CKEDITOR.tools.object
+			 */
+			merge: function( obj1, obj2 ) {
+				var tools = CKEDITOR.tools,
+					copy1 = tools.clone( obj1 ),
+					copy2 = tools.clone( obj2 );
+
+				tools.array.forEach( tools.objectKeys( copy2 ), function( key ) {
+					if ( typeof copy2[ key ] === 'object' && typeof copy1[ key ] === 'object' ) {
+						copy1[ key ] = tools.object.merge( copy1[ key ], copy2[ key ] );
+					} else {
+						copy1[ key ] = copy2[ key ];
+					}
+				} );
+
+				return copy1;
 			}
 		}
 	};
