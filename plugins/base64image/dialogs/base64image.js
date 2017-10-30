@@ -19,15 +19,19 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
 
         /* Create image */
         var i = new Image();
+        i.src = s;
 
         /* When image is loaded */
         i.onload = function () {
-            if (this.width > editor.config.kepMaximalisSzelessege || this.height > editor.config.kepMaximalisMagassaga) {
-                imgPreview.getElement().setHtml(editor.config.kepTulNagyFelbontasuMsg);
-                CKEDITOR.dialog.getCurrent().disableButton('ok');
-                return;
+            if (this.width > editor.config.kepMaximalisSzelessege) {
+                var oc = document.createElement('canvas');
+                var octx = oc.getContext('2d');
+                oc.width = editor.config.kepMaximalisSzelessege;
+                oc.height = oc.width * this.height / this.width;
+                octx.drawImage(this, 0, 0, oc.width, oc.height);
+                this.src = oc.toDataURL();
             }
-            CKEDITOR.dialog.getCurrent().enableButton('ok');
+
 
             /* Remove preview */
             imgPreview.getElement().setHtml("");
@@ -66,9 +70,6 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
         i.onabort = function () {
             imgPreview.getElement().setHtml("");
         };
-
-        /* Load image */
-        i.src = s;
     }
 
     /* Change input values and preview image */
