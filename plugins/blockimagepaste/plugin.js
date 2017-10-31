@@ -3,8 +3,8 @@ CKEDITOR.plugins.add( 'blockimagepaste',
     init : function( editor )
     {
         function replaceImgText(html) {
-            var ret = html.replace( /<img[^>]*src="data:image\/(bmp|dds|gif|jpg|jpeg|png|psd|pspimage|tga|thm|tif|tiff|yuv|ai|eps|ps|svg);base64,.*?"[^>]*>/gi, function( img ){
-                        alert("Direct image paste is not allowed.");
+            var ret = html.replace( /<img[^>]*>/gi, function( img ){
+                        alert("Közvetlen kép beillesztés nem lehetséges. Kérem, használja a kép létrehozás gombot!");
                         return '';
              
                      });
