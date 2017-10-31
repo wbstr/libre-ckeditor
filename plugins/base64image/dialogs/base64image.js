@@ -23,7 +23,8 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
 
         /* When image is loaded */
         i.onload = function () {
-            if (this.width > editor.config.imageMaxWidth) {
+            if (this.width > editor.config.imageMaxWidth
+                    || this.height > editor.config.imageMaxheight) {
                 var oc = document.createElement('canvas');
                 var octx = oc.getContext('2d');
                 oc.width = editor.config.imageMaxWidth;
@@ -210,10 +211,36 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
 
             /* Change Attributes Events  */
             this.getContentElement("tab-properties", "width").getInputElement().on("keyup", function () {
+                var imageDimensions = getImageDimensions();
+                if (imageDimensions.uw == "px"
+                        && imageDimensions.w > editor.config.imageMaxWidth) {
+                    alert("A kép túl széles, maximum " + editor.config.imageMaxWidth + "px állítható be.")
+                    return;
+                }
+                
+                if (imageDimensions.uw == "%"
+                        && imageDimensions.w > 100){
+                    alert("A kép túl széles, maximum 100% állítható be.")
+                    return;
+                }
+
                 if (lock)
                     imageDimensions("width");
             });
             this.getContentElement("tab-properties", "height").getInputElement().on("keyup", function () {
+                var imageDimensions = getImageDimensions();
+                if (imageDimensions.uh == "px"
+                        && imageDimensions.h > editor.config.imageMaxHeight) {
+                    alert("A kép túl magas, maximum " + editor.config.imageMaxHeight + "px állítható be.")
+                    return;
+                }
+                
+                if (imageDimensions.uh == "%"
+                        && imageDimensions.h > 100){
+                    alert("A kép túl magas, maximum 100% állítható be.")
+                    return;
+                }
+                
                 if (lock)
                     imageDimensions("height");
             });
