@@ -56,6 +56,7 @@ var CKBUILDER_CONFIG = {
 		'a11yhelp' : 1,
 		'about' : 1,
 		'base64image' : 1,
+		'blockimagepaste' : 1,
 		'basicstyles' : 1,
 		'bidi' : 1,
 		'blockquote' : 1,
