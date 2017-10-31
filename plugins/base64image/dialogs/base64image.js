@@ -214,16 +214,19 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 var imageDimensions = getImageDimensions();
                 if (imageDimensions.uw == "px"
                         && imageDimensions.w > editor.config.imageMaxWidth) {
-                    alert("A kép túl széles, maximum " + editor.config.imageMaxWidth + "px állítható be.")
+                    alert("A kép túl széles, maximum " + editor.config.imageMaxWidth + "px állítható be.");
+                    CKEDITOR.dialog.getCurrent().disableButton('ok');
                     return;
                 }
                 
                 if (imageDimensions.uw == "%"
                         && imageDimensions.w > 100){
-                    alert("A kép túl széles, maximum 100% állítható be.")
+                    alert("A kép túl széles, maximum 100% állítható be.");
+                    CKEDITOR.dialog.getCurrent().disableButton('ok');
                     return;
                 }
 
+                CKEDITOR.dialog.getCurrent().enableButton('ok');
                 if (lock)
                     imageDimensions("width");
             });
@@ -231,16 +234,19 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 var imageDimensions = getImageDimensions();
                 if (imageDimensions.uh == "px"
                         && imageDimensions.h > editor.config.imageMaxHeight) {
-                    alert("A kép túl magas, maximum " + editor.config.imageMaxHeight + "px állítható be.")
+                    alert("A kép túl magas, maximum " + editor.config.imageMaxHeight + "px állítható be.");
+                    CKEDITOR.dialog.getCurrent().disableButton('ok');
                     return;
                 }
                 
                 if (imageDimensions.uh == "%"
                         && imageDimensions.h > 100){
-                    alert("A kép túl magas, maximum 100% állítható be.")
+                    alert("A kép túl magas, maximum 100% állítható be.");
+                    CKEDITOR.dialog.getCurrent().disableButton('ok');
                     return;
                 }
                 
+                CKEDITOR.dialog.getCurrent().enableButton('ok');
                 if (lock)
                     imageDimensions("height");
             });
