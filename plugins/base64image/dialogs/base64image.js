@@ -140,10 +140,10 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
     }
 
     /* Set image dimensions */
-    function imageDimensions(src) {
+    function setImageRatio(to) {
         var o = getImageDimensions();
         var u = "px";
-        if (src == "width") {
+        if (to == "width") {
             if (o.uw == "%")
                 u = "%";
             o.h = Math.round(o.w / imgScal);
@@ -156,8 +156,8 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             o.w += "%";
             o.h += "%";
         }
-        t.getContentElement("tab-properties", "width").setValue(o.w),
-                t.getContentElement("tab-properties", "height").setValue(o.h)
+        t.getContentElement("tab-properties", "width").setValue(o.w);
+        t.getContentElement("tab-properties", "height").setValue(o.h);
     }
 
     /* Set integer Value */
@@ -206,7 +206,7 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 else
                     lock = false;
                 if (lock)
-                    imageDimensions("width");
+                    setImageRatio("width");
             }, this.getContentElement("tab-properties", "lock"));
 
             /* Change Attributes Events  */
@@ -218,9 +218,9 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                     CKEDITOR.dialog.getCurrent().disableButton('ok');
                     return;
                 }
-                
+
                 if (imageDimensions.uw == "%"
-                        && imageDimensions.w > 100){
+                        && imageDimensions.w > 100) {
                     alert("A kép túl széles, maximum 100% állítható be.");
                     CKEDITOR.dialog.getCurrent().disableButton('ok');
                     return;
@@ -228,7 +228,7 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
 
                 CKEDITOR.dialog.getCurrent().enableButton('ok');
                 if (lock)
-                    imageDimensions("width");
+                    setImageRatio("width");
             });
             this.getContentElement("tab-properties", "height").getInputElement().on("keyup", function () {
                 var imageDimensions = getImageDimensions();
@@ -238,17 +238,17 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                     CKEDITOR.dialog.getCurrent().disableButton('ok');
                     return;
                 }
-                
+
                 if (imageDimensions.uh == "%"
-                        && imageDimensions.h > 100){
+                        && imageDimensions.h > 100) {
                     alert("A kép túl magas, maximum 100% állítható be.");
                     CKEDITOR.dialog.getCurrent().disableButton('ok');
                     return;
                 }
-                
+
                 CKEDITOR.dialog.getCurrent().enableButton('ok');
                 if (lock)
-                    imageDimensions("height");
+                    setImageRatio("height");
             });
             this.getContentElement("tab-properties", "vmargin").getInputElement().on("keyup", function () {
                 integerValue(this);
