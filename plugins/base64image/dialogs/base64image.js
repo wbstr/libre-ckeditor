@@ -38,18 +38,10 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             imgPreview.getElement().setHtml("");
 
             /* Set attributes */
-            if (orgWidth == null || orgHeight == null) {
-                t.setValueOf("tab-properties", "width", this.width);
-                t.setValueOf("tab-properties", "height", this.height);
-                imgScal = 1;
-                if (this.height > 0 && this.width > 0)
-                    imgScal = this.width / this.height;
-                if (imgScal <= 0)
-                    imgScal = 1;
-            } else {
-                orgWidth = null;
-                orgHeight = null;
-            }
+            t.setValueOf("tab-properties", "width", "100");
+            var imgScal = this.height / this.width;
+            t.setValueOf("tab-properties", "height", Math.round(100 * imgScal));
+
             this.id = editor.id + "previewimage";
             this.setAttribute("style", "max-width:400px;max-height:100px;");
             this.setAttribute("alt", "");
@@ -122,14 +114,8 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
     function getImageDimensions() {
         var o = {
             "w": t.getContentElement("tab-properties", "width").getValue(),
-            "h": t.getContentElement("tab-properties", "height").getValue(),
-            "uw": "px",
-            "uh": "px"
+            "h": t.getContentElement("tab-properties", "height").getValue()
         };
-        if (o.w.indexOf("%") >= 0)
-            o.uw = "%";
-        if (o.h.indexOf("%") >= 0)
-            o.uh = "%";
         o.w = parseInt(o.w, 10);
         o.h = parseInt(o.h, 10);
         if (isNaN(o.w))
@@ -142,33 +128,23 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
     /* Set image dimensions */
     function setImageRatio(to) {
         var o = getImageDimensions();
-        var u = "px";
         if (to == "width") {
-            if (o.uw == "%")
-                u = "%";
             o.h = Math.round(o.w / imgScal);
         } else {
-            if (o.uh == "%")
-                u = "%";
             o.w = Math.round(o.h * imgScal);
         }
-        if (u == "%") {
-            o.w += "%";
-            o.h += "%";
-        }
+
         t.getContentElement("tab-properties", "width").setValue(o.w);
         t.getContentElement("tab-properties", "height").setValue(o.h);
     }
 
     /* Set integer Value */
     function integerValue(elem) {
-        var v = elem.getValue(), u = "";
-        if (v.indexOf("%") >= 0)
-            u = "%";
+        var v = elem.getValue();
         v = parseInt(v, 10);
         if (isNaN(v))
             v = 0;
-        elem.setValue(v + u);
+        elem.setValue(v + "%");
     }
 
     var sourceElements = [
@@ -212,15 +188,7 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             /* Change Attributes Events  */
             this.getContentElement("tab-properties", "width").getInputElement().on("keyup", function () {
                 var imageDimensions = getImageDimensions();
-                if (imageDimensions.uw == "px"
-                        && imageDimensions.w > editor.config.imageMaxWidth) {
-                    alert("A kép túl széles, maximum " + editor.config.imageMaxWidth + "px állítható be.");
-                    CKEDITOR.dialog.getCurrent().disableButton('ok');
-                    return;
-                }
-
-                if (imageDimensions.uw == "%"
-                        && imageDimensions.w > 100) {
+                if (imageDimensions.w > 100) {
                     alert("A kép túl széles, maximum 100% állítható be.");
                     CKEDITOR.dialog.getCurrent().disableButton('ok');
                     return;
@@ -232,15 +200,7 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             });
             this.getContentElement("tab-properties", "height").getInputElement().on("keyup", function () {
                 var imageDimensions = getImageDimensions();
-                if (imageDimensions.uh == "px"
-                        && imageDimensions.h > editor.config.imageMaxHeight) {
-                    alert("A kép túl magas, maximum " + editor.config.imageMaxHeight + "px állítható be.");
-                    CKEDITOR.dialog.getCurrent().disableButton('ok');
-                    return;
-                }
-
-                if (imageDimensions.uh == "%"
-                        && imageDimensions.h > 100) {
+                if (imageDimensions.h > 100) {
                     alert("A kép túl magas, maximum 100% állítható be.");
                     CKEDITOR.dialog.getCurrent().disableButton('ok');
                     return;
@@ -378,7 +338,6 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 value = t.getValueOf("tab-properties", k);
                 attrvalue = value;
                 cssvalue = value;
-                unit = "px";
 
                 if (k == "align") {
                     switch (value) {
@@ -397,21 +356,14 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 }
 
                 if (attr[k][2] == "integer") {
-                    if (value.indexOf("%") >= 0)
-                        unit = "%";
                     value = parseInt(value, 10);
                     if (isNaN(value))
                         value = null;
                     else if (value < attr[k][3])
                         value = null;
                     if (value != null) {
-                        if (unit == "%") {
-                            attrvalue = value + "%";
-                            cssvalue = value + "%";
-                        } else {
-                            attrvalue = value;
-                            cssvalue = value + "px";
-                        }
+                        attrvalue = value + "%";
+                        cssvalue = value + "%";
                     }
                 }
 
