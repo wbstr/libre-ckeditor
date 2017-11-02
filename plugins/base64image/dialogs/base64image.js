@@ -23,16 +23,9 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
 
         /* When image is loaded */
         i.onload = function () {
-            if (this.width > editor.config.imageMaxWidth
-                    || this.height > editor.config.imageMaxheight) {
-                var oc = document.createElement('canvas');
-                var octx = oc.getContext('2d');
-                oc.width = editor.config.imageMaxWidth;
-                oc.height = oc.width * this.height / this.width;
-                octx.drawImage(this, 0, 0, oc.width, oc.height);
-                this.src = oc.toDataURL();
-            }
-
+            /* Resize image */
+            if (editor.plugins.imageresize)
+                editor.plugins.imageresize.resize(editor, this);
 
             /* Remove preview */
             imgPreview.getElement().setHtml("");
@@ -379,10 +372,6 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             /* Insert new image */
             if (!selectedImg)
                 editor.insertElement(newImg);
-
-            /* Resize image */
-            if (editor.plugins.imageresize)
-                editor.plugins.imageresize.resize(editor, newImg, 800, 800);
 
         },
 
