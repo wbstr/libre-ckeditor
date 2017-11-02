@@ -31,9 +31,14 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             imgPreview.getElement().setHtml("");
 
             /* Set attributes */
-            t.setValueOf("tab-properties", "width", "100");
-            var imgScal = this.height / this.width;
-            t.setValueOf("tab-properties", "height", Math.round(100 * imgScal));
+            if (orgWidth == null || orgHeight == null) {
+                t.setValueOf("tab-properties", "width", "100");
+                var imgScal = this.height / this.width;
+                t.setValueOf("tab-properties", "height", Math.round(100 * imgScal));
+            } else {
+                t.setValueOf("tab-properties", "width", orgWidth);
+                t.setValueOf("tab-properties", "height", orgHeight);
+            }
 
             this.id = editor.id + "previewimage";
             this.setAttribute("style", "max-width:400px;max-height:100px;");
