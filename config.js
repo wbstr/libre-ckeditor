@@ -8,6 +8,6 @@ CKEDITOR.editorConfig = function( config ) {
 	config.skin = 'moono-lisa',
         
         config.disableObjectResizing = true,
-	config.extraAllowedContent = 'table[width]',
+	config.extraAllowedContent = 'table[width];p{margin-top,margin-bottom}',
 	config.disallowedContent = 'table{width}';
 };
