@@ -1093,13 +1093,12 @@
 
 			editor.on( 'contentDom', function() {
 				var editable = editor.editable(),
-					mouseHost = editable.isInline() ? editable : editor.document,
 					evtInfo = { editor: editor };
 
 				// Explicitly set editor as DOM events generated on document does not convey information about it.
-				editable.attachListener( mouseHost, 'mousedown', fakeSelectionMouseHandler, null, evtInfo );
-				editable.attachListener( mouseHost, 'mousemove', fakeSelectionMouseHandler, null, evtInfo );
-				editable.attachListener( mouseHost, 'mouseup', fakeSelectionMouseHandler, null, evtInfo );
+				editable.attachListener( editable, 'mousedown', fakeSelectionMouseHandler, null, evtInfo );
+				editable.attachListener( editable, 'mousemove', fakeSelectionMouseHandler, null, evtInfo );
+				editable.attachListener( editable, 'mouseup', fakeSelectionMouseHandler, null, evtInfo );
 
 				editable.attachListener( editable, 'dragstart', fakeSelectionDragHandler );
 				editable.attachListener( editor, 'selectionCheck', fakeSelectionChangeHandler );
