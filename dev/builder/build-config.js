@@ -110,6 +110,7 @@ var CKBUILDER_CONFIG = {
 		'stylescombo' : 1,
 		'tab' : 1,
 		'table' : 1,
+		'tablepaste' : 1,
 		'tableselection' : 1,
 		'tabletools' : 1,
 		'templates' : 1,

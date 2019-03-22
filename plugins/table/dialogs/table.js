@@ -223,6 +223,10 @@
 
 					if ( !table.getAttribute( 'style' ) )
 						table.removeAttribute( 'style' );
+
+					//set table ID attribute
+                    table.setAttribute("tableid",  editor.config.tableId);
+                    editor.config.tableId += 1;
 				}
 
 				// Insert the table element if we're creating one.

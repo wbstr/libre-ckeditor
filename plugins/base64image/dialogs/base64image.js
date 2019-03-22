@@ -3,7 +3,6 @@
  * Licensed under the terms of GPL, LGPL and MPL licenses.
  */
 CKEDITOR.dialog.add("base64imageDialog", function (editor) {
-
     var t = null,
             selectedImg = null,
             orgWidth = null, orgHeight = null,
@@ -373,6 +372,10 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             }
             if (css.length > 0)
                 newImg.setAttribute("style", css.join(""));
+
+            //set image ID attribute
+            newImg.setAttribute("imageid", editor.config.imageId)
+            editor.config.imageId += 1;
 
             /* Insert new image */
             if (!selectedImg)
