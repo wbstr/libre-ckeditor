@@ -1232,7 +1232,7 @@
 				$1: {
 					elements: setUpTags(),
 					attributes: true,
-					styles: false,
+					styles: CKEDITOR.config.stylesEnabledCopyPaste,
 					classes: false
 				}
 			} );

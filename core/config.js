@@ -418,7 +418,9 @@ CKEDITOR.config = {
 
     tableId: 0,
 
-	imageId: 0
+	imageId: 0,
+
+	stylesEnabledCopyPaste: false
 };
 
 /**
