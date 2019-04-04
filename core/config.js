@@ -420,7 +420,7 @@ CKEDITOR.config = {
 
 	imageId: 0,
 
-	stylesEnabledCopyPaste: false
+	stylesEnabledCopyPaste: true
 };
 
 /**
