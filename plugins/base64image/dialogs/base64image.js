@@ -312,11 +312,8 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             if (typeof (src) != "string" || src == null || src === "")
                 return;
 
-            /* selected image or new image */
-            if (selectedImg)
-                var newImg = selectedImg;
-            else
-                var newImg = editor.document.createElement("img");
+
+            var newImg = editor.document.createElement("img");
             newImg.setAttribute("src", src);
             src = null;
 
@@ -377,10 +374,8 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             newImg.setAttribute("imageid", editor.config.imageId)
             editor.config.imageId += 1;
 
-            /* Insert new image */
-            if (!selectedImg)
-                editor.insertElement(newImg);
 
+            editor.insertElement(newImg);
         },
 
         /* Dialog form */
