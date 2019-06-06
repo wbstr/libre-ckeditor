@@ -1,39 +1,45 @@
-CKEDITOR.plugins.add( 'blockimagepaste',
-{
-    init : function( editor )
-    {
-        function replaceImgText(html) {
-            var ret = html.replace( /<img[^>]*>/gi, function( img ){
+CKEDITOR.plugins.add('blockimagepaste',
+        {
+            init: function (editor)
+            {
+                function replaceImgText(html) {
+                    var regex = /(<[^>]*imageid=")([0-9]*)("[^>]*>)/;
+                    if (regex.test(html)) {
+                        return html.replace(regex, function (img, beforeImageId, imageId, afterImageId) {
+                            editor.config.imageId += 1;
+                            return beforeImageId + editor.config.imageId + afterImageId;
+                        });
+                    }
+
+                    return  html.replace(/<img[^>]*>/gi, function (img) {
                         alert("Közvetlen kép beillesztés nem lehetséges. Kérem, használja a kép létrehozás gombot!");
                         return '';
-             
-                     });
-            return ret;
-        }
-         
-        function chkImg() {
-            // don't execute code if the editor is readOnly
-            if (editor.readOnly)
-                return;
-         
-            setTimeout( function() {
-                editor.document.$.body.innerHTML = replaceImgText(editor.document.$.body.innerHTML);
-            },100);
-        }
-         
-        editor.on( 'contentDom', function() {
-            // For Firefox
-            editor.document.on('drop', chkImg);
-            // For IE
-            editor.document.getBody().on('drop', chkImg);
+                    });
+                }
+
+                function chkImg() {
+                    // don't execute code if the editor is readOnly
+                    if (editor.readOnly)
+                        return;
+
+                    setTimeout(function () {
+                        editor.document.$.body.innerHTML = replaceImgText(editor.document.$.body.innerHTML);
+                    }, 100);
+                }
+
+                editor.on('contentDom', function () {
+                    // For Firefox
+                    editor.document.on('drop', chkImg);
+                    // For IE
+                    editor.document.getBody().on('drop', chkImg);
+                });
+
+                editor.on('paste', function (e) {
+                    var html = e.data.dataValue;
+                    if (!html)
+                        return;
+                    e.data.dataValue = replaceImgText(html);
+                });
+
+            } //Init
         });
-         
-        editor.on( 'paste', function(e) {
-            var html = e.data.dataValue;
-            if (!html)
-                return;
-            e.data.dataValue = replaceImgText(html);
-        });
-         
-    } //Init
-} );

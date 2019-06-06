@@ -371,9 +371,8 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 newImg.setAttribute("style", css.join(""));
 
             //set image ID attribute
-            newImg.setAttribute("imageid", editor.config.imageId)
             editor.config.imageId += 1;
-
+            newImg.setAttribute("imageid", editor.config.imageId)
 
             editor.insertElement(newImg);
         },
