@@ -3,16 +3,12 @@ CKEDITOR.plugins.add('blockimagepaste',
             init: function (editor)
             {
                 function replaceImgText(html) {
-                    var regex = /(<[^>]*imageid=")([0-9]*)("[^>]*>)/;
-                    if (regex.test(html)) {
-                        return html.replace(regex, function (img, beforeImageId, imageId, afterImageId) {
-                            editor.config.imageId += 1;
-                            return beforeImageId + editor.config.imageId + afterImageId;
-                        });
+                    if (editor.sequence.hasId(html)) {
+                        return html;
                     }
 
                     return  html.replace(/<img[^>]*>/gi, function (img) {
-                        alert("Közvetlen kép beillesztés nem lehetséges. Kérem, használja a kép létrehozás gombot!");
+                        alert("Rendszeren kívülről kép beillesztés nem lehetséges. Kérem, használja a kép létrehozás gombot!");
                         return '';
                     });
                 }

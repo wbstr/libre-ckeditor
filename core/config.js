@@ -416,10 +416,6 @@ CKEDITOR.config = {
 		CKEDITOR.CTRL + 85 // Ctrl+U
 	],
 
-    tableId: 0,
-
-	imageId: 0,
-
 	stylesEnabledCopyPaste: true
 };
 

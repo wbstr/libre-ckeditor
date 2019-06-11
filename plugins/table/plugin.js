@@ -18,7 +18,7 @@ CKEDITOR.plugins.add( 'table', {
 
 		editor.addCommand( 'table', new CKEDITOR.dialogCommand( 'table', {
 			context: 'table',
-			allowedContent: 'table{width,height}[align,border,cellpadding,cellspacing,summary,tableid];' +
+			allowedContent: 'table{width,height}[align,border,cellpadding,cellspacing,summary,data-id];' +
 				'caption tbody thead tfoot;' +
 				'th td tr[scope];' +
 				( editor.plugins.dialogadvtab ? 'table' + editor.plugins.dialogadvtab.allowedContent() : '' ),
