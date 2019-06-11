@@ -25,6 +25,8 @@ CKEDITOR.plugins.add('sequence', {
                     return beforeImageId + nextId + afterImageId;
                 });
             }
+            
+            return html;
         }
 
         function chkId() {
