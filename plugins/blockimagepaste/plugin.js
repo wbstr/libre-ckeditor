@@ -1,11 +1,22 @@
+// ####################################################################################
+// ####################################################################################
+// ####################################################################################
+// #################### !!!! KIKAPCSOLVA !!!! ##########################################
+// ####################################################################################
+// ####################################################################################
+// ####################################################################################
+// ####################################################################################
+
 CKEDITOR.plugins.add('blockimagepaste',
         {
             init: function (editor)
             {
                 function replaceImgText(html) {
-                    if (editor.plugins.sequence && editor.sequence.hasId(html)) {
-                        return html;
-                    }
+                    // FIXME Mivel már a sequence plugin tesz id-t arra, amin nincs
+                    // ez nem tud működni
+//                    if (editor.sequence.hasId(html)) {
+//                        return html;
+//                    }
 
                     return  html.replace(/<img[^>]*>/gi, function (img) {
                         alert("Rendszeren kívülről kép beillesztés nem lehetséges. Kérem, használja a kép létrehozás gombot!");

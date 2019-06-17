@@ -3,30 +3,27 @@ CKEDITOR.plugins.add('sequence', {
     init: function (editor) {
         editor.sequence = {
             _value: 0,
-            _regex: /(<[^>]*data-id=")([0-9]*)("[^>]*>)/gm,
 
             next: function () {
                 editor.sequence._value += 1;
                 return editor.sequence._value;
-            },
-
-            hasId: function (html) {
-                var regex = editor.sequence._regex;
-                return regex.test(html);
             }
         };
 
+        var tagWithDataId = /(<[^>]*data-id=")([0-9]*)("[^>]*>)/gm;
 
-        function updateId(html) {
-            if (editor.sequence.hasId(html)) {
-                var regex = editor.sequence._regex;
-                return html.replace(regex, function (img, beforeImageId, imageId, afterImageId) {
-                    var nextId = editor.sequence.next(editor);
-                    return beforeImageId + nextId + afterImageId;
-                });
-            }
-            
-            return html;
+        function updateOrCreateId(html) {
+            var tableOrImgRegex = /(<table|<img)([^>]*>)/gm;
+            return html.replace(tableOrImgRegex, function (full, tag, afterTag) {
+                var nextId = editor.sequence.next(editor);
+
+                var match = tagWithDataId.exec(full);
+                if (match) {
+                    return match[1] + nextId + match[3];
+                }
+
+                return tag + ' data-id="' + nextId + '" ' + afterTag;
+            });
         }
 
         function chkId() {
@@ -35,7 +32,7 @@ CKEDITOR.plugins.add('sequence', {
                 return;
 
             setTimeout(function () {
-                editor.document.$.body.innerHTML = updateId(editor.document.$.body.innerHTML);
+                editor.document.$.body.innerHTML = updateOrCreateId(editor.document.$.body.innerHTML);
             }, 100);
         }
 
@@ -50,17 +47,16 @@ CKEDITOR.plugins.add('sequence', {
             var html = e.data.dataValue;
             if (!html)
                 return;
-            e.data.dataValue = updateId(html);
+            e.data.dataValue = updateOrCreateId(html);
         });
 
         editor.on('setData', function (e) {
-            var html = e.data.dataValue;
-            var regex = editor.sequence._regex;
+            var html = updateOrCreateId(e.data.dataValue);
             var sequence = editor.sequence._value;
 
             var match;
             while (true) {
-                match = regex.exec(html);
+                match = tagWithDataId.exec(html);
                 if (match) {
                     sequence = Math.max(sequence, match[2]);
                 } else {
@@ -68,6 +64,7 @@ CKEDITOR.plugins.add('sequence', {
                 }
             }
 
+            e.data.dataValue = html;
             editor.sequence._value = sequence;
         });
     }

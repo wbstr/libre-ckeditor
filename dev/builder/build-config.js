@@ -57,7 +57,6 @@ var CKBUILDER_CONFIG = {
 		'about' : 1,
 		'autocorrect' : 1,
 		'base64image' : 1,
-                'blockimagepaste' : 1,
 		'imageresize' : 1,
 		'basicstyles' : 1,
 		'bidi' : 1,
