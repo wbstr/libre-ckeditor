@@ -3,7 +3,7 @@ CKEDITOR.plugins.add('blockimagepaste',
             init: function (editor)
             {
                 function replaceImgText(html) {
-                    if (editor.sequence.hasId(html)) {
+                    if (editor.plugins.sequence && editor.sequence.hasId(html)) {
                         return html;
                     }
 

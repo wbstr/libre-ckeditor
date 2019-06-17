@@ -225,8 +225,10 @@
 						table.removeAttribute( 'style' );
 
 					//set table ID attribute
-                                        var nextId = editor.sequence.next(editor);
-                    table.setAttribute("data-id",  nextId);
+                                        if (editor.plugins.sequence) {
+                                            var nextId = editor.sequence.next(editor);
+                                            table.setAttribute("data-id", nextId);
+                                        }
 				}
 
 				// Insert the table element if we're creating one.
