@@ -4,121 +4,176 @@
  * Licensed under the terms of GPL, LGPL and MPL licenses.
  */
 CKEDITOR.plugins.add("imageresize", {
-    	init : function(editor){
-		
-		/* Browser Support */
-		if(!this.support()) return;
-		
-		/* Config */
-		this.getConfig(editor);
-	},
-	
-	/*
-	 * Resize one image
-	 * editor: CKEDITOR Instance
-	 * imageElement: Image Node
-	 * width: (integer) max width of the image
-	 * height: (integer) max height of the image
-	 */
-	resize : function(editor, imageElement, width, height){
-		
-		/* Browser Support */
-        	if(!this.support() || !imageElement) return;
-		
-		/* Width and Height */
-		if(!width) width = this.config.maxWidth;
-		if(!height) height = this.config.maxHeight;
-		console.log(width+"x"+height);
-		
-		/* Create image and set properties */
-        	var img = new Image(), ns = "ckeditorimageresize";
-        	img[ns] = {"n":imageElement, "w":width, "h":height};
-		
-		/* Error Function */
-        	img.onerror = function() { this[ns] = null; delete this[ns]; };
-        	img.onabort = function() { this[ns] = null; delete this[ns]; };
-		
-		/* Resize function when image is loaded */
-        	img.onload = function() {
-		
-			/* calculate width and height */
-	            	if(this.width <= this[ns].w && this.height <= this[ns].h) return;
-	            	if((this[ns].w / this[ns].h) > (this.width / this.height)) this[ns].w = this[ns].h * (this.width / this.height);
-	            	else this[ns].h = Math.round(this[ns].w / (this.width / this.height));
-			
-			/* Create canvas and draw image with new width and height */
-		        var cv = document.createElement("canvas");
-		       	cv.width = this[ns].w;
-		        cv.height = this[ns].h;
-		        cv.style.width = this[ns].w+"px";
-		        cv.style.height = this[ns].h+"px";
-		        var ct = cv.getContext("2d");
-		        ct.drawImage(this, 0, 0, this[ns].w, this[ns].h);
-			
-			/* Get base64 image source and update image node */
-	            	if(this[ns].n) {
-				if(/^data:image\/jpeg/i.test(this.src) || /\.(jpg|jpeg)$/i.test(this.src)) {
-					this[ns].n.setAttribute("src", cv.toDataURL("image/jpeg", 0.8));
-				} else {
-					this[ns].n.setAttribute("src", cv.toDataURL("image/png"));
-				}
-				this[ns].n.setAttribute("width", this[ns].w);
-				this[ns].n.setAttribute("height", this[ns].h);
-				try {
-					this[ns].n.$.style.width = this[ns].w+"px";
-					this[ns].n.$.style.height = this[ns].h+"px";
-				} catch(e) {}
-				try {
-					editor.focus();
-					editor.getSelection().scrollIntoView();
-				} catch(e) {}
-			}
-			
-	            	this[ns] = cv = ct = null;
-	            	delete this[ns];
-	        };
-		
-		/* Load image */
-        	img.src = imageElement.getAttribute("src");
-		
-	},
-	
-	/* Browser Support */
-	supportResult : null,
-	support : function(){
-	        if(this.supportResult === null) {
-	            	this.supportResult = false;
-	            	var cv = document.createElement("canvas");
-	            	if(cv && cv.getContext && cv.toDataURL && cv.getContext("2d")) {
-	                	var ct = cv.getContext("2d");
-	                	if(ct && ct.getImageData && ct.putImageData) this.supportResult = true;
-	                	ct = null;
-	            	}
-	            	cv = null;
-	        }
-	        return this.supportResult;
-	},
-	
-	/* Config */
-	config : {
-		 "maxWidth" 	: 800
-		,"maxHeight"	: 800
-	},
-	getConfig : function(editor){
-		if(editor.config.imageResize)
-		{
-			for(var k in this.config)
-			{
-				if(editor.config.imageResize[k])
-				{
-					this.config[k] = parseInt(editor.config.imageResize[k], 10);
-					if(isNaN(this.config[k]) || this.config[k] < 1)
-					{
-						this.config[k] = 800;
-					}
-				}
-			}
-		}
-	}
-	
+    init: function (editor) {
+
+        /* Browser Support */
+        if (!this.support())
+            return;
+
+        /* Config */
+        this.getConfig(editor);
+
+        function replaceImgage(html) {
+            return  html.replace(/(<img[^>]*src=")([^>]*)("[^>]*>)/, function (originalImage, beforImg, base64, afterImage) {
+                if (editor.plugins.imageresize) {
+                    var resizedImage = new Image();
+                    resizedImage.src = base64;
+                    editor.plugins.imageresize.resize(editor, resizedImage);
+
+                    return beforImg + resizedImage.src + afterImage;
+                }
+
+
+                return originalImage;
+            });
+        }
+
+        function chkImg() {
+            // don't execute code if the editor is readOnly
+            if (editor.readOnly)
+                return;
+
+            setTimeout(function () {
+                editor.document.$.body.innerHTML = replaceImgage(editor.document.$.body.innerHTML);
+            }, 100);
+        }
+
+        editor.on('contentDom', function () {
+            // For Firefox
+            editor.document.on('drop', chkImg);
+            // For IE
+            editor.document.getBody().on('drop', chkImg);
+        });
+
+        editor.on('paste', function (e) {
+            var html = e.data.dataValue;
+            if (!html)
+                return;
+            e.data.dataValue = replaceImgage(html);
+        });
+    },
+
+    /*
+     * Resize one image
+     * editor: CKEDITOR Instance
+     * imageElement: Image Node
+     * width: (integer) max width of the image
+     * height: (integer) max height of the image
+     */
+    resize: function (editor, imageElement, width, height) {
+
+        /* Browser Support */
+        if (!this.support() || !imageElement)
+            return;
+
+        /* Width and Height */
+        if (!width)
+            width = this.config.maxWidth;
+        if (!height)
+            height = this.config.maxHeight;
+        console.log(width + "x" + height);
+
+        /* Create image and set properties */
+        var img = new Image(), ns = "ckeditorimageresize";
+        img[ns] = {"n": imageElement, "w": width, "h": height};
+
+        /* Error Function */
+        img.onerror = function () {
+            this[ns] = null;
+            delete this[ns];
+        };
+        img.onabort = function () {
+            this[ns] = null;
+            delete this[ns];
+        };
+
+        /* Resize function when image is loaded */
+        img.onload = function () {
+
+            /* calculate width and height */
+            if (this.width <= this[ns].w && this.height <= this[ns].h)
+                return;
+            if ((this[ns].w / this[ns].h) > (this.width / this.height))
+                this[ns].w = this[ns].h * (this.width / this.height);
+            else
+                this[ns].h = Math.round(this[ns].w / (this.width / this.height));
+
+            /* Create canvas and draw image with new width and height */
+            var cv = document.createElement("canvas");
+            cv.width = this[ns].w;
+            cv.height = this[ns].h;
+            cv.style.width = this[ns].w + "px";
+            cv.style.height = this[ns].h + "px";
+            var ct = cv.getContext("2d");
+            ct.drawImage(this, 0, 0, this[ns].w, this[ns].h);
+
+            /* Get base64 image source and update image node */
+            if (this[ns].n) {
+                if (/^data:image\/jpeg/i.test(this.src) || /\.(jpg|jpeg)$/i.test(this.src)) {
+                    this[ns].n.setAttribute("src", cv.toDataURL("image/jpeg", 0.8));
+                } else {
+                    this[ns].n.setAttribute("src", cv.toDataURL("image/png"));
+                }
+                this[ns].n.setAttribute("width", this[ns].w);
+                this[ns].n.setAttribute("height", this[ns].h);
+                try {
+                    this[ns].n.$.style.width = this[ns].w + "px";
+                    this[ns].n.$.style.height = this[ns].h + "px";
+                } catch (e) {
+                }
+                try {
+                    editor.focus();
+                    editor.getSelection().scrollIntoView();
+                } catch (e) {
+                }
+            }
+
+            this[ns] = cv = ct = null;
+            delete this[ns];
+        };
+
+        /* Load image */
+        img.src = imageElement.getAttribute("src");
+
+    },
+
+    /* Browser Support */
+    supportResult: null,
+    support: function () {
+        if (this.supportResult === null) {
+            this.supportResult = false;
+            var cv = document.createElement("canvas");
+            if (cv && cv.getContext && cv.toDataURL && cv.getContext("2d")) {
+                var ct = cv.getContext("2d");
+                if (ct && ct.getImageData && ct.putImageData)
+                    this.supportResult = true;
+                ct = null;
+            }
+            cv = null;
+        }
+        return this.supportResult;
+    },
+
+    /* Config */
+    config: {
+        "maxWidth": 800
+        , "maxHeight": 800
+    },
+    getConfig: function (editor) {
+        if (editor.config.imageResize)
+        {
+            for (var k in this.config)
+            {
+                if (editor.config.imageResize[k])
+                {
+                    this.config[k] = parseInt(editor.config.imageResize[k], 10);
+                    if (isNaN(this.config[k]) || this.config[k] < 1)
+                    {
+                        this.config[k] = 800;
+                    }
+                }
+            }
+        }
+    }
+
 });
