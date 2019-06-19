@@ -1,13 +1,5 @@
 CKEDITOR.plugins.add('pastebase64', {
     init: function init(editor) {
-        editor.on('paste', function (e) {
-            var html = e.data.dataValue;
-            if (!html)
-                return;
-            
-            console.log(html);
-        });
-        
         editor.on("contentDom", function () {
             var editableElement = editor.editable ? editor.editable() : editor.document;
             editableElement.on("paste", onPaste, null, {editor: editor});
