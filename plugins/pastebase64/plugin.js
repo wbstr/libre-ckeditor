@@ -1,5 +1,21 @@
 CKEDITOR.plugins.add('pastebase64', {
     init: function init(editor) {
+
+        var foundAsFile;
+
+        editor.on('paste', function (e) {
+            var html = e.data.dataValue;
+            if (!html)
+                return;
+
+            if (foundAsFile) {
+                // block image paste from firefox
+                e.data.dataValue = html.replace(/<img[^>]*src="data:image\/png;base64,[^>]*>/gm, function (img) {
+                    return '';
+                });
+            }
+        });
+
         editor.on("contentDom", function () {
             var editableElement = editor.editable ? editor.editable() : editor.document;
             editableElement.on("paste", onPaste, null, {editor: editor});
@@ -11,6 +27,7 @@ CKEDITOR.plugins.add('pastebase64', {
             var clipboardData = $event.clipboardData;
             var imageType = /^image/;
 
+            foundAsFile = false;
             if (!clipboardData) {
                 return;
             }
@@ -18,6 +35,7 @@ CKEDITOR.plugins.add('pastebase64', {
             return Array.prototype.forEach.call(clipboardData.types, function (type, i) {
                 if (type.match(imageType) || clipboardData.items[i].type.match(imageType)) {
                     readImageAsBase64(clipboardData.items[i], editor);
+                    foundAsFile = true;
                 }
             });
         }
