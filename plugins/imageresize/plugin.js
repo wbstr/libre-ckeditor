@@ -33,7 +33,6 @@ CKEDITOR.plugins.add("imageresize", {
             width = this.config.maxWidth;
         if (!height)
             height = this.config.maxHeight;
-        console.log("resize image to " + width + "x" + height);
 
         /* Create image and set properties */
         var img = new Image(), ns = "ckeditorimageresize";
