@@ -12,45 +12,7 @@ CKEDITOR.plugins.add("imageresize", {
 
         /* Config */
         this.getConfig(editor);
-
-        function replaceImgage(html) {
-            return  html.replace(/(<img[^>]*src=")([^>]*)("[^>]*>)/, function (originalImage, beforImg, base64, afterImage) {
-                if (editor.plugins.imageresize) {
-                    var resizedImage = new Image();
-                    resizedImage.src = base64;
-                    editor.plugins.imageresize.resize(editor, resizedImage);
-
-                    return beforImg + resizedImage.src + afterImage;
-                }
-
-
-                return originalImage;
-            });
-        }
-
-        function chkImg() {
-            // don't execute code if the editor is readOnly
-            if (editor.readOnly)
-                return;
-
-            setTimeout(function () {
-                editor.document.$.body.innerHTML = replaceImgage(editor.document.$.body.innerHTML);
-            }, 100);
-        }
-
-        editor.on('contentDom', function () {
-            // For Firefox
-            editor.document.on('drop', chkImg);
-            // For IE
-            editor.document.getBody().on('drop', chkImg);
-        });
-
-        editor.on('paste', function (e) {
-            var html = e.data.dataValue;
-            if (!html)
-                return;
-            e.data.dataValue = replaceImgage(html);
-        });
+        
     },
 
     /*
@@ -71,7 +33,7 @@ CKEDITOR.plugins.add("imageresize", {
             width = this.config.maxWidth;
         if (!height)
             height = this.config.maxHeight;
-        console.log(width + "x" + height);
+        console.log("resize image to " + width + "x" + height);
 
         /* Create image and set properties */
         var img = new Image(), ns = "ckeditorimageresize";
