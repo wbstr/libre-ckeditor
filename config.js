@@ -10,4 +10,5 @@ CKEDITOR.editorConfig = function( config ) {
         config.disableObjectResizing = true,
 	config.extraAllowedContent = 'table[width];p{margin-top,margin-bottom}',
 	config.disallowedContent = 'table{width}';
+	CKEDITOR.disableAutoInline = true
 };

@@ -126,7 +126,7 @@
 			for ( var i = 0, len = elements.count(); i < len; i++ ) {
 				el = elements.getItem( i );
 
-				if ( el.getAttribute( 'contenteditable' ) == 'true' ) {
+				if (!CKEDITOR.disableAutoInline &&  el.getAttribute( 'contenteditable' ) == 'true' ) {
 					// Fire the "inline" event, making it possible to customize
 					// the instance settings and eventually cancel the creation.
 
@@ -142,9 +142,10 @@
 		}
 	};
 
-	CKEDITOR.domReady( function() {
-		!CKEDITOR.disableAutoInline && CKEDITOR.inlineAll();
-	} );
+    CKEDITOR.domReady( function() {
+		(typeof CKEDITOR.disableAutoInline !== 'undefined') && !CKEDITOR.disableAutoInline && CKEDITOR.inlineAll();
+    });
+
 } )();
 
 /**
