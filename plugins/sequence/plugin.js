@@ -18,6 +18,7 @@ CKEDITOR.plugins.add('sequence', {
                 var nextId = editor.sequence.next(editor);
 
                 var match = tagWithDataId.exec(full);
+                tagWithDataId.lastIndex = 0;
                 if (match) {
                     return match[1] + nextId + match[3];
                 }
