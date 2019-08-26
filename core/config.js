@@ -414,11 +414,7 @@ CKEDITOR.config = {
 		CKEDITOR.CTRL + 66, // Ctrl+B
 		CKEDITOR.CTRL + 73, // Ctrl+I
 		CKEDITOR.CTRL + 85 // Ctrl+U
-	],
-
-	stylesEnabledCopyPaste: true,
-
-	disableAutoInline: true
+	]
 };
 
 /**

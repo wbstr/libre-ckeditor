@@ -124,7 +124,7 @@
 		hidpi: true, // %REMOVE_LINE_CORE%
 		init: function( editor ) {
 			var filterType,
-				filtersFactory = filtersFactoryFactory();
+				filtersFactory = filtersFactoryFactory( editor );
 
 			if ( editor.config.forcePasteAsPlainText ) {
 				filterType = 'plain-text';
@@ -1210,7 +1210,7 @@
 		return switchEnterMode( config, data );
 	}
 
-	function filtersFactoryFactory() {
+	function filtersFactoryFactory( editor ) {
 		var filters = {};
 
 		function setUpTags() {
@@ -1225,14 +1225,14 @@
 			return tags;
 		}
 
-		function createSemanticContentFilter() {
-			var filter = new CKEDITOR.filter();
+		function createSemanticContentFilter( editor ) {
+			var filter = new CKEDITOR.filter( editor );
 
 			filter.allow( {
 				$1: {
 					elements: setUpTags(),
 					attributes: true,
-					styles: CKEDITOR.config.stylesEnabledCopyPaste,
+					styles: editor.config.stylesEnabledCopyPaste,
 					classes: false
 				}
 			} );
@@ -1256,7 +1256,7 @@
 					// Now you can sleep well.
 					return filters.plainText || ( filters.plainText = new CKEDITOR.filter( 'br' ) );
 				} else if ( type == 'semantic-content' ) {
-					return filters.semanticContent || ( filters.semanticContent = createSemanticContentFilter() );
+					return filters.semanticContent || ( filters.semanticContent = createSemanticContentFilter(editor) );
 				} else if ( type ) {
 					// Create filter based on rules (string or object).
 					return new CKEDITOR.filter( type );
