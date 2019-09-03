@@ -4,9 +4,9 @@
  */
 CKEDITOR.dialog.add("base64imageDialog", function (editor) {
     var t = null,
-            selectedImg = null,
-            orgWidth = null, orgHeight = null,
-            imgPreview = null, urlCB = null, urlI = null, fileCB = null, imgScal = 1, lock = true;
+        selectedImg = null,
+        orgWidth = null, orgHeight = null,
+        imgPreview = null, urlCB = null, urlI = null, fileCB = null, imgScal = 1, lock = true;
 
     /* Load preview image */
     function imagePreviewLoad(s) {
@@ -246,9 +246,17 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 if (typeof (selectedImg.getAttribute("height")) == "string")
                     orgHeight = selectedImg.getAttribute("height");
                 if ((orgWidth == null || orgHeight == null) && selectedImg.$) {
-                    orgWidth = selectedImg.$.width;
-                    orgHeight = selectedImg.$.height;
+
+                    // Azért van szükség a selectedImg.getStyle()-ból szedni az adatokat, mert a kép visszatöltésekor
+                    // a selectedImg.$.width és a selectedImg.$.height már pixelben tárolja
+                    // az értékeit és ebből tölti vissza az eredetileg %-ot tartalmaző mezőt,
+                    // ami így modosítás után helytelen képméretet eredményez
+                    // Viszont az img style attribútumába továbbbra %-osan szerepel az érték így onna kell kiszedni.
+
+                    orgWidth = selectedImg.getStyle('width');
+                    orgHeight = selectedImg.getStyle('height');
                 }
+
                 if (orgWidth != null && orgHeight != null) {
                     t.setValueOf("tab-properties", "width", orgWidth);
                     t.setValueOf("tab-properties", "height", orgHeight);
@@ -303,6 +311,7 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
         onOk: function () {
 
             /* Get image source */
+            var isNewImage = true;
             var src = "";
             try {
                 src = CKEDITOR.document.getById(editor.id + "previewimage").$.src;
@@ -313,7 +322,14 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 return;
 
 
-            var newImg = editor.document.createElement("img");
+            /* selected image or new image */
+            if (selectedImg && selectedImg.$.src == src) {
+                var newImg = selectedImg;
+                isNewImage = false;
+            } else {
+                var newImg = editor.document.createElement("img");
+            }
+
             newImg.setAttribute("src", src);
             src = null;
 
@@ -371,7 +387,7 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 newImg.setAttribute("style", css.join(""));
 
             //set image ID attribute
-            if (editor.plugins.sequence) {
+            if (editor.plugins.sequence && isNewImage) {
                 var nextId = editor.sequence.next(editor);
                 newImg.setAttribute("data-id", nextId);
             }
