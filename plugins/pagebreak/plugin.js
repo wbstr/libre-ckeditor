@@ -145,18 +145,18 @@
         context: 'div',
         allowedContent: {
             div: {
-                styles: '!page-break-after'
+                styles: '!page-break-after, page-break-orientation'
             },
             span: {
                 match: function (element) {
                     var parent = element.parent;
                     return parent && parent.name == 'div'
-                            && parent.styles && parent.styles[ 'page-break-after' ];
+                            && parent.styles && parent.styles[ 'page-break-after', 'page-break-orientation' ];
                 },
                 styles: 'display'
             }
         },
-        requiredContent: 'div{page-break-after}'
+        requiredContent: 'div{page-break-after,page-break-orientation}'
     };
 
     CKEDITOR.plugins.pagebreakLandscape = {
@@ -171,18 +171,18 @@
         context: 'div',
         allowedContent: {
             div: {
-                styles: '!page-break-after'
+                styles: '!page-break-after, page-break-orientation'
             },
             span: {
                 match: function (element) {
                     var parent = element.parent;
                     return parent && parent.name == 'div'
-                            && parent.styles && parent.styles[ 'page-break-after' ];
+                            && parent.styles && parent.styles[ 'page-break-after', 'page-break-orientation' ];
                 },
                 styles: 'display'
             }
         },
-        requiredContent: 'div{page-break-after}'
+        requiredContent: 'div{page-break-after,page-break-orientation}'
     };
 
     // Returns an object representing all the attributes
