@@ -70,8 +70,7 @@
                     dataFilter = dataProcessor && dataProcessor.dataFilter,
                     htmlFilter = dataProcessor && dataProcessor.htmlFilter,
                     pageOrientationRegex = /.*page-break-orientation:\s*([^;]*).*/i,
-                    pageBreakRegex = /page-break-after\s*:\s*always/i,
-                    childStyleRegex = /display\s*:\s*none/i;
+                    pageBreakRegex = /page-break-after\s*:\s*always/i;
 
             function upcastPageBreak(element, pageOrientation) {
                 CKEDITOR.tools.extend(element.attributes, attributesSet(editor, pageOrientation), true);
@@ -85,9 +84,6 @@
                         'class': function (value, element) {
                             var className = value.replace('cke_pagebreak', '');
                             if (className != value) {
-                                var span = CKEDITOR.htmlParser.fragment.fromHtml('<span style="display: none;">&nbsp;</span>').children[ 0 ];
-                                element.children.length = 0;
-                                element.add(span);
                                 var attrs = element.attributes;
                                 delete attrs[ 'aria-label' ];
                                 delete attrs.contenteditable;
@@ -120,9 +116,6 @@
                             // Check for "data form" of the pagebreak. If both element and
                             // descendants match, convert them to internal form.
                             else if (pageBreakRegex.test(elementStyle)) {
-                                var child = element.children[ 0 ];
-
-                                if (child && child.name == 'span' && childStyleRegex.test(child.attributes.style))
                                     upcastPageBreak(element, pageOrientation);
                             }
                         }
