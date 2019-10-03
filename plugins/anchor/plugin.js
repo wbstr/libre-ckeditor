@@ -1,21 +1,28 @@
 (function () {
 
     CKEDITOR.plugins.add('anchor', {
+
         init: function (editor) {
-            editor.on('doubleclick', function (e) {
-                var b = CKEDITOR.plugins.link.getSelectedLink(editor) || e.data.element;
-                if (!b.isReadOnly()) {
-                    if (b.is('a')) {
-                        var anchorName = getAnchorName(b.$.dataset.ckeSavedHref);
-                        if (anchorName && (b.$.protocol.indexOf('http') == 0)) {
-                            var anchor = editor.document.getById(anchorName);
-                            editor.getSelection().selectElement(anchor);
-                            anchor.scrollIntoView();
-                            return;
+            editor.on('contentDom', function (evt) {
+                var editable = editor.editable();
+
+                editable.attachListener(editable, 'click', function (e) {
+                    var b = CKEDITOR.plugins.link.getSelectedLink(editor);
+                    if (e.data.$.ctrlKey && b) {
+                        if (b.is('a')) {
+                            var anchorName = getAnchorName(b.$.dataset.ckeSavedHref);
+                            if (anchorName && (b.$.protocol.indexOf('http') == 0)) {
+                                var anchor = editor.document.getById(anchorName);
+                                var range = editor.createRange();
+                                range.setStart(anchor, 0);
+                                editor.getSelection().selectRanges([range]);
+                                anchor.scrollIntoView();
+                                return;
+                            }
                         }
                     }
-                }
-            }, null, null, 0);
+                })
+            });
         }
     });
 
