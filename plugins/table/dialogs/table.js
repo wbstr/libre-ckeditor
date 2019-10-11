@@ -218,17 +218,17 @@
 					}
 
 					// Set the width and height.
-                                        info.txtWidth ? table.setAttribute("width", info.txtWidth) : table.removeAttribute("width");
-                                        info.txtHeight ? table.setAttribute("height", info.txtHeight) : table.removeAttribute("height");
+                    info.txtWidth ? table.setAttribute("width", info.txtWidth) : table.removeAttribute("width");
+                    info.txtHeight ? table.setAttribute("height", info.txtHeight) : table.removeAttribute("height");
 
 					if ( !table.getAttribute( 'style' ) )
 						table.removeAttribute( 'style' );
 
 					//set table ID attribute
-                                        if (editor.plugins.sequence) {
-                                            var nextId = editor.sequence.next(editor);
-                                            table.setAttribute("data-id", nextId);
-                                        }
+                    if (editor.plugins.sequence) {
+                    	var nextId = editor.sequence.next(editor);
+                        table.setAttribute("data-id", nextId);
+                    }
 				}
 
 				// Insert the table element if we're creating one.

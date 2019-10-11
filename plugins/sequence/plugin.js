@@ -26,9 +26,31 @@ CKEDITOR.plugins.add('sequence', {
                     return match[1] + nextId + match[3];
                 }
 
-                dataIds.push(nextId);
-                return tag + ' data-id="' + nextId + '" ' + afterTag;
+                return sortTagAttributes(tag, afterTag, nextId);
             });
+        }
+
+        function sortTagAttributes(tag, afterTag, nextId) {
+            var attrRegexp = /(\w+|\w+-\w+)=("[^<>"]*"|'[^<>']*'|\w+)/g;
+            var attrArray = afterTag.match(attrRegexp);
+
+            if (attrArray) {
+                dataIds.push(nextId);
+                attrArray.push('data-id="' + nextId + '"');
+                attrArray.sort();
+
+                var outputHtml = tag;
+                for (var index = 0; index < attrArray.length; index++) {
+                    outputHtml = outputHtml.concat(' ' + attrArray[index]);
+                }
+                return outputHtml.concat(tag == "<img" ? "/>" : ">");
+            } else {
+                //Ide elméletileg nem juthatunk, de inkább itt hagyom,
+                // hogy ha mégse akkor inkább legyen rossz a tagben az attribútumok sorrendje és dobjon dirtyt,
+                // mintsem, hogy nincs benne a data-id
+                dataIds.push(nextId);
+                return tag + ' data-id="' + nextId + '" ' + afterTag
+            }
         }
 
         function checkDataIds(html) {
