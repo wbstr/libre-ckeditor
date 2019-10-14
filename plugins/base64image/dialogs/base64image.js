@@ -6,7 +6,8 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
     var t = null,
         selectedImg = null,
         orgWidth = null, orgHeight = null,
-        imgPreview = null, urlCB = null, urlI = null, fileCB = null, imgScal = 1, lock = true;
+        // imgPreview = null, urlCB = null, urlI = null, fileCB = null, imgScal = 1, lock = true;
+        imgPreview = null, urlCB = null, urlI = null, fileCB = null, imgScal = 1;
 
     /* Load preview image */
     function imagePreviewLoad(s) {
@@ -32,8 +33,7 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             /* Set attributes */
             if (orgWidth == null || orgHeight == null) {
                 t.setValueOf("tab-properties", "width", "100");
-                var imgScal = this.height / this.width;
-                t.setValueOf("tab-properties", "height", Math.round(100 * imgScal));
+                t.setValueOf("tab-properties", "height", "100");
             } else {
                 t.setValueOf("tab-properties", "width", orgWidth);
                 t.setValueOf("tab-properties", "height", orgHeight);
@@ -125,6 +125,7 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
     /* Set image dimensions */
     function setImageRatio(to) {
         var o = getImageDimensions();
+        imgScal = imgScal > 1 ? 1 : imgScal;
         if (to == "width") {
             o.h = Math.round(o.w / imgScal);
         } else {
@@ -173,14 +174,14 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             imgPreview = this.getContentElement("tab-source", "preview");
 
             /* Constrain proportions or not */
-            this.getContentElement("tab-properties", "lock").getInputElement().on("click", function () {
-                if (this.getValue())
-                    lock = true;
-                else
-                    lock = false;
-                if (lock)
-                    setImageRatio("width");
-            }, this.getContentElement("tab-properties", "lock"));
+            // this.getContentElement("tab-properties", "lock").getInputElement().on("click", function () {
+            //     if (this.getValue())
+            //         lock = true;
+            //     else
+            //         lock = false;
+            //     if (lock)
+            //         setImageRatio("width");
+            // }, this.getContentElement("tab-properties", "lock"));
 
             /* Change Attributes Events  */
             this.getContentElement("tab-properties", "width").getInputElement().on("keyup", function () {
@@ -192,8 +193,8 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 }
 
                 CKEDITOR.dialog.getCurrent().enableButton('ok');
-                if (lock)
-                    setImageRatio("width");
+                // if (lock)
+                setImageRatio("width");
             });
             this.getContentElement("tab-properties", "height").getInputElement().on("keyup", function () {
                 var imageDimensions = getImageDimensions();
@@ -204,8 +205,8 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 }
 
                 CKEDITOR.dialog.getCurrent().enableButton('ok');
-                if (lock)
-                    setImageRatio("height");
+                // if (lock)
+                setImageRatio("height");
             });
             this.getContentElement("tab-properties", "vmargin").getInputElement().on("keyup", function () {
                 integerValue(this);
@@ -222,7 +223,8 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             /* Remove preview */
             imgPreview.getElement().setHtml("");
 
-            t = this, orgWidth = null, orgHeight = null, imgScal = 1, lock = true;
+            // t = this, orgWidth = null, orgHeight = null, imgScal = 1, lock = true;
+            t = this, orgWidth = null, orgHeight = null, imgScal = 1;
 
             /* selected image or null */
             selectedImg = editor.getSelection();
@@ -232,7 +234,7 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 selectedImg = null;
 
             /* Set input values */
-            t.setValueOf("tab-properties", "lock", lock);
+            // t.setValueOf("tab-properties", "lock", lock);
             t.setValueOf("tab-properties", "vmargin", "0");
             t.setValueOf("tab-properties", "hmargin", "0");
             t.setValueOf("tab-properties", "border", "0");
@@ -249,9 +251,9 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
 
                     // Azért van szükség a selectedImg.getStyle()-ból szedni az adatokat, mert a kép visszatöltésekor
                     // a selectedImg.$.width és a selectedImg.$.height már pixelben tárolja
-                    // az értékeit és ebből tölti vissza az eredetileg %-ot tartalmaző mezőt,
+                    // az értékeit és ebből tölti vissza az eredetileg %-ot tartalmazó mezőt,
                     // ami így modosítás után helytelen képméretet eredményez
-                    // Viszont az img style attribútumába továbbbra %-osan szerepel az érték így onna kell kiszedni.
+                    // Viszont az img style attribútumába továbbbra is %-osan szerepel az érték így onna kell kiszedni.
 
                     orgWidth = selectedImg.getStyle('width');
                     orgHeight = selectedImg.getStyle('height');
@@ -413,7 +415,7 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                     },
                     {
                         type: 'hbox',
-                        widths: ["15%", "15%", "70%"],
+                        widths: ["20%", "30%", "50%"],
                         children: [
                             {
                                 type: "text",
@@ -427,51 +429,62 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                                 id: "height",
                                 label: editor.lang.common.height
                             },
+                            // {
+                            //     type: "checkbox",
+                            //     id: "lock",
+                            //     label: editor.lang.base64image.lockRatio,
+                            //     style: "margin-top:18px;"
+                            // }
                             {
-                                type: "checkbox",
-                                id: "lock",
-                                label: editor.lang.base64image.lockRatio,
-                                style: "margin-top:18px;"
+                                type: 'vbox',
+                                padding: 0,
+                                children: [
+                                    {
+                                        type: 'hbox',
+                                        children: [
+                                            {
+                                                type: "select",
+                                                id: "align",
+                                                label: editor.lang.common.align,
+                                                items: [
+                                                    [editor.lang.common.notSet, "none"],
+                                                    [editor.lang.common.alignTop, "top"],
+                                                    [editor.lang.common.alignBottom, "bottom"],
+                                                    [editor.lang.common.alignLeft, "left"],
+                                                    [editor.lang.common.alignRight, "right"]
+                                                ]
+                                            },
+                                            {
+                                                type: "text",
+                                                width: "45px",
+                                                id: "border",
+                                                label: editor.lang.base64image.border
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        type: 'hbox',
+                                        widths: ["50%", "50%"],
+                                        children: [
+                                            {
+                                                type: "text",
+                                                width: "45px",
+                                                id: "vmargin",
+                                                label: editor.lang.base64image.vSpace
+                                            },
+                                            {
+                                                type: "text",
+                                                width: "45px",
+                                                id: "hmargin",
+                                                label: editor.lang.base64image.hSpace
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     },
-                    {
-                        type: 'hbox',
-                        widths: ["23%", "30%", "30%", "17%"],
-                        style: "margin-top:10px;",
-                        children: [
-                            {
-                                type: "select",
-                                id: "align",
-                                label: editor.lang.common.align,
-                                items: [
-                                    [editor.lang.common.notSet, "none"],
-                                    [editor.lang.common.alignTop, "top"],
-                                    [editor.lang.common.alignBottom, "bottom"],
-                                    [editor.lang.common.alignLeft, "left"],
-                                    [editor.lang.common.alignRight, "right"]
-                                ]
-                            },
-                            {
-                                type: "text",
-                                width: "45px",
-                                id: "vmargin",
-                                label: editor.lang.base64image.vSpace
-                            },
-                            {
-                                type: "text",
-                                width: "45px",
-                                id: "hmargin",
-                                label: editor.lang.base64image.hSpace
-                            },
-                            {
-                                type: "text",
-                                width: "45px",
-                                id: "border",
-                                label: editor.lang.base64image.border
-                            }
-                        ]
-                    }
+
                 ]
             }
         ]

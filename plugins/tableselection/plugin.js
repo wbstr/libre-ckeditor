@@ -1034,14 +1034,7 @@
 			}
 
 			function clearCellInRange( range ) {
-				var node = range.getEnclosedNode();
-
-				// Set text only in case of table cells, otherwise remove whole element (#867).
-				if ( node && node.is( { td: 1, th: 1 } ) ) {
-					range.getEnclosedNode().setText( '' );
-				} else {
-					range.deleteContents();
-				}
+				range.deleteContents();
 
 				CKEDITOR.tools.array.forEach( range._find( 'td' ), function( cell ) {
 					// Cells that were not removed, need to contain bogus BR (if needed), otherwise row might
@@ -1095,15 +1088,18 @@
 				var editable = editor.editable(),
 					evtInfo = { editor: editor };
 
-				// Explicitly set editor as DOM events generated on document does not convey information about it.
-				editable.attachListener( editable, 'mousedown', fakeSelectionMouseHandler, null, evtInfo );
-				editable.attachListener( editable, 'mousemove', fakeSelectionMouseHandler, null, evtInfo );
-				editable.attachListener( editable, 'mouseup', fakeSelectionMouseHandler, null, evtInfo );
+				//Only works not readOnly mode
+				if(!editor.readOnly) {
+					CKEDITOR.plugins.tableselection.keyboardIntegration( editor );
 
-				editable.attachListener( editable, 'dragstart', fakeSelectionDragHandler );
-				editable.attachListener( editor, 'selectionCheck', fakeSelectionChangeHandler );
+					// Explicitly set editor as DOM events generated on document does not convey information about it.
+					editable.attachListener( editable, 'mousedown', fakeSelectionMouseHandler, null, evtInfo );
+					editable.attachListener( editable, 'mousemove', fakeSelectionMouseHandler, null, evtInfo );
+					editable.attachListener( editable, 'mouseup', fakeSelectionMouseHandler, null, evtInfo );
 
-				CKEDITOR.plugins.tableselection.keyboardIntegration( editor );
+					editable.attachListener( editable, 'dragstart', fakeSelectionDragHandler );
+					editable.attachListener( editor, 'selectionCheck', fakeSelectionChangeHandler );
+				}
 
 				// Setup copybin.
 				if ( CKEDITOR.plugins.clipboard && !CKEDITOR.plugins.clipboard.isCustomCopyCutSupported ) {
