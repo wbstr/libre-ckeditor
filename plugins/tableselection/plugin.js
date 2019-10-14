@@ -320,6 +320,7 @@
 
 			// This listener covers case when mouse button is released outside the editor.
 			CKEDITOR.document.on( 'mouseup', fakeSelectionMouseHandler, null, { editor: editor } );
+			CKEDITOR.document.on( 'mousemove', fakeSelectionOutTable, null, {editor: editor})
 		}
 
 		// The separate condition for table handles cases when user starts/stop dragging from/in
@@ -342,6 +343,15 @@
 			CKEDITOR.document.removeListener( 'mouseup', fakeSelectionMouseHandler );
 		}
 	}
+
+	function fakeSelectionOutTable(evt) {
+        if(fakeSelection.active && evt.name === 'mousemove' && evt.data.getTarget().getAscendant( 'table', true ) == null) {
+            fakeSelection = { active: false };
+            CKEDITOR.document.removeListener( 'mousedown', fakeSelectionMouseHandler);
+            CKEDITOR.document.removeListener( 'mouseup', fakeSelectionMouseHandler);
+            CKEDITOR.document.removeListener( 'mousemove', fakeSelectionMouseHandler);
+        }
+    }
 
 	function fakeSelectionDragHandler( evt ) {
 		var cell = evt.data.getTarget().getAscendant( { td: 1, th: 1 }, true );
@@ -1094,6 +1104,7 @@
 
 					// Explicitly set editor as DOM events generated on document does not convey information about it.
 					editable.attachListener( editable, 'mousedown', fakeSelectionMouseHandler, null, evtInfo );
+					editable.attachListener( editable, 'mouseout', fakeSelectionMouseHandler, null, evtInfo );
 					editable.attachListener( editable, 'mousemove', fakeSelectionMouseHandler, null, evtInfo );
 					editable.attachListener( editable, 'mouseup', fakeSelectionMouseHandler, null, evtInfo );
 
