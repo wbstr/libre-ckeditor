@@ -21,6 +21,15 @@
 		}
 	};
 
+	/**
+	 * cellContent.firstChild -ra NULL vizsgálat kell a függvény használata előtt
+	 * @param cellContent
+	 * @returns {boolean}
+	 */
+	function isCellContentHtmlList( cellContent ) {
+		return cellContent.firstChild.tagName == 'LI';
+	}
+
 	function selectNextCellCommand( backward ) {
 		return {
 			editorFocus: false,
@@ -74,7 +83,7 @@
 						} else if ( next ) {
 
 							var cellContent = next;
-							while(cellContent.firstChild != null && cellContent.firstChild.firstChild != null) {
+							while(cellContent.firstChild != null && !isCellContentHtmlList(cellContent) && cellContent.firstChild.firstChild != null) {
 								cellContent = cellContent.firstChild;
 							}
 
