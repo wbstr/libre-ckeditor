@@ -21,6 +21,15 @@
 		}
 	};
 
+	/**
+	 * cellContent.firstChild -ra NULL vizsgálat kell a függvény használata előtt
+	 * @param cellContent
+	 * @returns {boolean}
+	 */
+	function isCellContentHtmlList( cellContent ) {
+		return cellContent.firstChild.tagName == 'LI';
+	}
+
 	function selectNextCellCommand( backward ) {
 		return {
 			editorFocus: false,
@@ -55,19 +64,34 @@
 								cells = cell.getParent().$.cells;
 
 							var newRow = new CKEDITOR.dom.element( table.insertRow( -1 ), editor.document );
+							var firstNewCell;
 
 							for ( var i = 0, count = cells.length; i < count; i++ ) {
-								var newCell = newRow.append( new CKEDITOR.dom.element( cells[ i ], editor.document ).clone( false, false ) );
+								var newCell;
+								if ( i == 0 ) {
+									firstNewCell = new CKEDITOR.dom.element( cells[ i ], editor.document ).clone( false, false );
+									newCell = newRow.append(firstNewCell);
+									newCell.appendBogus();
+									continue;
+								}
+								newCell = newRow.append( new CKEDITOR.dom.element( cells[ i ], editor.document ).clone( false, false ) );
 								newCell.appendBogus();
 							}
 
 							resultRange.moveToElementEditStart( newRow );
+							resultRange.selectNodeContents( firstNewCell );
 						} else if ( next ) {
+
+							var cellContent = next;
+							while(cellContent.firstChild != null && !isCellContentHtmlList(cellContent) && cellContent.firstChild.firstChild != null) {
+								cellContent = cellContent.firstChild;
+							}
+
+							cellContent = new CKEDITOR.dom.element( cellContent );
 							next = new CKEDITOR.dom.element( next );
-							resultRange.moveToElementEditStart( next );
-							// Avoid selecting empty block makes the cursor blind.
-							if ( !( resultRange.checkStartOfBlock() && resultRange.checkEndOfBlock() ) )
-								resultRange.selectNodeContents( next );
+
+							resultRange.moveToElementEditStart(next);
+							resultRange.selectNodeContents(cellContent);
 						} else {
 							return true;
 						}
