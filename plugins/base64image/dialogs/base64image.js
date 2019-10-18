@@ -6,7 +6,6 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
     var t = null,
         selectedImg = null,
         orgWidth = null, orgHeight = null,
-        // imgPreview = null, urlCB = null, urlI = null, fileCB = null, imgScal = 1, lock = true;
         imgPreview = null, urlCB = null, urlI = null, fileCB = null, imgScal = 1;
 
     /* Load preview image */
@@ -173,16 +172,6 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             /* Get image preview element */
             imgPreview = this.getContentElement("tab-source", "preview");
 
-            /* Constrain proportions or not */
-            // this.getContentElement("tab-properties", "lock").getInputElement().on("click", function () {
-            //     if (this.getValue())
-            //         lock = true;
-            //     else
-            //         lock = false;
-            //     if (lock)
-            //         setImageRatio("width");
-            // }, this.getContentElement("tab-properties", "lock"));
-
             /* Change Attributes Events  */
             this.getContentElement("tab-properties", "width").getInputElement().on("keyup", function () {
                 var imageDimensions = getImageDimensions();
@@ -193,7 +182,6 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 }
 
                 CKEDITOR.dialog.getCurrent().enableButton('ok');
-                // if (lock)
                 setImageRatio("width");
             });
             this.getContentElement("tab-properties", "height").getInputElement().on("keyup", function () {
@@ -205,7 +193,6 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 }
 
                 CKEDITOR.dialog.getCurrent().enableButton('ok');
-                // if (lock)
                 setImageRatio("height");
             });
             this.getContentElement("tab-properties", "vmargin").getInputElement().on("keyup", function () {
@@ -223,7 +210,6 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
             /* Remove preview */
             imgPreview.getElement().setHtml("");
 
-            // t = this, orgWidth = null, orgHeight = null, imgScal = 1, lock = true;
             t = this, orgWidth = null, orgHeight = null, imgScal = 1;
 
             /* selected image or null */
@@ -234,7 +220,6 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                 selectedImg = null;
 
             /* Set input values */
-            // t.setValueOf("tab-properties", "lock", lock);
             t.setValueOf("tab-properties", "vmargin", "0");
             t.setValueOf("tab-properties", "hmargin", "0");
             t.setValueOf("tab-properties", "border", "0");
@@ -429,12 +414,6 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                                 id: "height",
                                 label: editor.lang.common.height
                             },
-                            // {
-                            //     type: "checkbox",
-                            //     id: "lock",
-                            //     label: editor.lang.base64image.lockRatio,
-                            //     style: "margin-top:18px;"
-                            // }
                             {
                                 type: 'vbox',
                                 padding: 0,
@@ -484,7 +463,6 @@ CKEDITOR.dialog.add("base64imageDialog", function (editor) {
                             }
                         ]
                     },
-
                 ]
             }
         ]
