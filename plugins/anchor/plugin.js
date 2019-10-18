@@ -1,28 +1,27 @@
 (function () {
 
     CKEDITOR.plugins.add('anchor', {
-
         init: function (editor) {
-            editor.on('contentDom', function (evt) {
-                var editable = editor.editable();
-
-                editable.attachListener(editable, 'click', function (e) {
-                    var b = CKEDITOR.plugins.link.getSelectedLink(editor);
-                    if (e.data.$.ctrlKey && b) {
-                        if (b.is('a')) {
-                            var anchorName = getAnchorName(b.$.dataset.ckeSavedHref);
-                            if (anchorName && (b.$.protocol.indexOf('http') == 0)) {
-                                var anchor = editor.document.getById(anchorName);
-                                var range = editor.createRange();
-                                range.setStart(anchor, 0);
-                                editor.getSelection().selectRanges([range]);
-                                anchor.scrollIntoView();
-                                return;
+            editor.on('contentDom', function () {
+                this.document.on('mousedown', function (e) {
+                    if (e.data.$.button == 0) {
+                        var b = CKEDITOR.plugins.link.getSelectedLink(editor);
+                        if (e.data.$.ctrlKey && b) {
+                            if (b.is('a')) {
+                                var anchorName = getAnchorName(b.$.dataset.ckeSavedHref);
+                                if (anchorName && (b.$.protocol.indexOf('http') == 0)) {
+                                    e.data.preventDefault();
+                                    var anchor = editor.document.getById(anchorName);
+                                    var range = editor.createRange();
+                                    range.setStart(anchor, 0);
+                                    editor.getSelection().selectRanges([range]);
+                                    anchor.scrollIntoView();
+                                }
                             }
                         }
                     }
                 })
-            });
+            })
         }
     });
 
@@ -81,4 +80,5 @@
     function getAnchorName(href) {
         return href.split('#')[1];
     }
+
 })();
