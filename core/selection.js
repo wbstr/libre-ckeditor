@@ -1,15 +1,19 @@
 /**
- * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or http://ckeditor.com/license
+ * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
 ( function() {
 	var isMSSelection = typeof window.getSelection != 'function',
 		nextRev = 1,
-		// http://dev.ckeditor.com/ticket/13816
+		// https://dev.ckeditor.com/ticket/13816
 		fillingCharSequence = CKEDITOR.tools.repeat( '\u200b', 7 ),
 		fillingCharSequenceRegExp = new RegExp( fillingCharSequence + '( )?', 'g' ),
 		isSelectingTable;
+
+	function isWidget( element ) {
+		return CKEDITOR.plugins.widget && CKEDITOR.plugins.widget.isDomWidget( element );
+	}
 
 	// #### table selection : START
 	// @param {CKEDITOR.dom.range[]} ranges
@@ -17,6 +21,11 @@
 	// This happens for WebKits on MacOS, when you right click inside the table.
 	function isTableSelection( ranges, allowPartially ) {
 		if ( ranges.length === 0 ) {
+			return false;
+		}
+
+		// It's not table selection when selected node is a widget (#1027).
+		if ( isWidget( ranges[ 0 ].getEnclosedNode() ) ) {
 			return false;
 		}
 
@@ -75,9 +84,9 @@
 			fakeTable = fakeRanges.length && fakeRanges[ 0 ]._getTableElement() &&
 				fakeRanges[ 0 ]._getTableElement().getAscendant( 'table', true ),
 			isTableRange = ranges.length === 1 && ranges[ 0 ]._getTableElement() &&
-					ranges[ 0 ]._getTableElement().is( 'table' ),
+				ranges[ 0 ]._getTableElement().is( 'table' ),
 			isFakeTableRange = fakeRanges.length === 1 && fakeRanges[ 0 ]._getTableElement() &&
-					fakeRanges[ 0 ]._getTableElement().is( 'table' );
+				fakeRanges[ 0 ]._getTableElement().is( 'table' );
 
 		function isValidTableSelection( table, fakeTable, ranges, fakeRanges ) {
 			var isMenuOpen = ranges.length === 1 && ranges[ 0 ].collapsed,
@@ -94,6 +103,11 @@
 			}
 
 			return table.equals( fakeTable ) || fakeTable.contains( table );
+		}
+
+		// When widget is selected, then definitely it's not a table (#1027).
+		if ( isWidget( fakeSelection.getSelectedElement() ) ) {
+			return false;
 		}
 
 		if ( isValidTableSelection( table, fakeTable, ranges, fakeRanges ) ) {
@@ -248,11 +262,12 @@
 
 		var currentPath = this.elementPath();
 		if ( !currentPath.compare( this._.selectionPreviousPath ) ) {
-			// Handle case when dialog inserts new element but parent block and path (so also focus context) does not change. (http://dev.ckeditor.com/ticket/13362)
+			// Handle case when dialog inserts new element but parent block and path (so also focus context) does not change. (https://dev.ckeditor.com/ticket/13362)
 			var sameBlockParent = this._.selectionPreviousPath && this._.selectionPreviousPath.blockLimit.equals( currentPath.blockLimit );
-			// Cache the active element, which we'll eventually lose on Webkit.
-			if ( CKEDITOR.env.webkit && !sameBlockParent )
+			// Cache the active element, which we'll eventually lose on Webkit and Gecko (#1113).
+			if ( ( CKEDITOR.env.webkit || CKEDITOR.env.gecko ) && !sameBlockParent ) {
 				this._.previousActive = this.document.getActive();
+			}
 
 			this._.selectionPreviousPath = currentPath;
 			this.fire( 'selectionChange', { selection: sel, path: currentPath } );
@@ -298,7 +313,7 @@
 	// * is a visible node,
 	// * is a non-empty element (this rule will accept elements like <strong></strong> because they
 	//	they were not accepted by the isVisible() check, not not <br> which cannot absorb the caret).
-	//	See http://dev.ckeditor.com/ticket/12621.
+	//	See https://dev.ckeditor.com/ticket/12621.
 	function mayAbsorbCaret( node ) {
 		if ( isVisible( node ) )
 			return true;
@@ -339,8 +354,8 @@
 		if ( ctxRequiresFix( previous ) || ctxRequiresFix( next, 1 ) )
 			return true;
 
-		// Empty block/inline element is also affected. <span>^</span>, <p>^</p> (http://dev.ckeditor.com/ticket/7222)
-		// If you found this line confusing check http://dev.ckeditor.com/ticket/12655.
+		// Empty block/inline element is also affected. <span>^</span>, <p>^</p> (https://dev.ckeditor.com/ticket/7222)
+		// If you found this line confusing check https://dev.ckeditor.com/ticket/12655.
 		if ( !( previous || next ) && !( ct.type == CKEDITOR.NODE_ELEMENT && ct.isBlockBoundary() && ct.getBogus() ) )
 			return true;
 
@@ -356,7 +371,7 @@
 		return fillingChar;
 	}
 
-	// Checks if a filling char has been used, eventually removing it (http://dev.ckeditor.com/ticket/1272).
+	// Checks if a filling char has been used, eventually removing it (https://dev.ckeditor.com/ticket/1272).
 	function checkFillingCharSequenceNodeReady( editable ) {
 		var fillingChar = editable.getCustomData( 'cke-fillingChar' );
 
@@ -377,7 +392,7 @@
 
 		if ( fillingChar ) {
 			// Text selection position might get mangled by
-			// subsequent dom modification, save it now for restoring. (http://dev.ckeditor.com/ticket/8617)
+			// subsequent dom modification, save it now for restoring. (https://dev.ckeditor.com/ticket/8617)
 			if ( keepSelection !== false ) {
 				var sel = editable.getDocument().getSelection().getNative(),
 					// Be error proof.
@@ -413,11 +428,11 @@
 		}
 	}
 
-	// http://dev.ckeditor.com/ticket/13816
+	// https://dev.ckeditor.com/ticket/13816
 	function removeFillingCharSequenceString( str, nbspAware ) {
 		if ( nbspAware ) {
 			return str.replace( fillingCharSequenceRegExp, function( m, p ) {
-				// http://dev.ckeditor.com/ticket/10291 if filling char is followed by a space replace it with NBSP.
+				// https://dev.ckeditor.com/ticket/10291 if filling char is followed by a space replace it with NBSP.
 				return p ? '\xa0' : '';
 			} );
 		} else {
@@ -445,8 +460,8 @@
 
 	// Creates cke_hidden_sel container and puts real selection there.
 	function hideSelection( editor, ariaLabel ) {
-		var content = ariaLabel || '&nbsp;',
-			style = CKEDITOR.env.ie && CKEDITOR.env.version < 14 ? 'display:none' : 'position:fixed;top:0;left:-1000px',
+		var content = ariaLabel && CKEDITOR.tools.htmlEncode( ariaLabel ) || '&nbsp;',
+			style = CKEDITOR.env.ie && CKEDITOR.env.version < 14 ? 'display:none' : 'position:fixed;top:0;left:-1000px;width:0;height:0;overflow:hidden;',
 			hiddenEl = CKEDITOR.dom.element.createFromHtml(
 				'<div data-cke-hidden-sel="1" data-cke-temp="1" style="' + style + '">' + content + '</div>',
 				editor.document );
@@ -455,7 +470,7 @@
 
 		editor.editable().append( hiddenEl );
 
-			// Always use real selection to avoid overriding locked one (http://dev.ckeditor.com/ticket/11104#comment:13).
+		// Always use real selection to avoid overriding locked one (https://dev.ckeditor.com/ticket/11104#comment:13).
 		var sel = editor.getSelection( 1 ),
 			range = editor.createRange(),
 			// Cancel selectionchange fired by selectRanges - prevent from firing selectionChange.
@@ -513,6 +528,11 @@
 				var editor = evt.editor,
 					range = editor.createRange(),
 					found;
+
+				// We have to skip deletion for read only editor (#1516).
+				if ( editor.readOnly ) {
+					return;
+				}
 
 				// If haven't found place for caret on the default side,
 				// try to find it on the other side.
@@ -593,7 +613,7 @@
 			( enclosedNode = range.getEnclosedNode() ) && enclosedNode.type == CKEDITOR.NODE_ELEMENT ) {
 			// So far we can't say that enclosed element is non-editable. Before checking,
 			// we'll shrink range (clone). Shrinking will stop on non-editable range, or
-			// innermost element (http://dev.ckeditor.com/ticket/11114).
+			// innermost element (https://dev.ckeditor.com/ticket/11114).
 			clone = range.clone();
 			clone.shrink( CKEDITOR.SHRINK_ELEMENT, true );
 
@@ -727,7 +747,7 @@
 
 			// Give the editable an initial selection on first focus,
 			// put selection at a consistent position at the start
-			// of the contents. (http://dev.ckeditor.com/ticket/9507)
+			// of the contents. (https://dev.ckeditor.com/ticket/9507)
 			if ( CKEDITOR.env.gecko ) {
 				editable.attachListener( editable, 'focus', function( evt ) {
 					evt.removeListener();
@@ -735,7 +755,7 @@
 					if ( restoreSel !== 0 ) {
 						var nativ = editor.getSelection().getNative();
 						// Do it only if the native selection is at an unwanted
-						// place (at the very start of the editable). http://dev.ckeditor.com/ticket/10119
+						// place (at the very start of the editable). https://dev.ckeditor.com/ticket/10119
 						if ( nativ && nativ.isCollapsed && nativ.anchorNode == editable.$ ) {
 							var rng = editor.createRange();
 							rng.moveToElementEditStart( editable );
@@ -746,17 +766,18 @@
 			}
 
 			// Plays the magic here to restore/save dom selection on editable focus/blur.
-			editable.attachListener( editable, CKEDITOR.env.webkit ? 'DOMFocusIn' : 'focus', function() {
-				// On Webkit we use DOMFocusIn which is fired more often than focus - e.g. when moving from main editable
+			editable.attachListener( editable, CKEDITOR.env.webkit || CKEDITOR.env.gecko ? 'focusin' : 'focus' , function() {
+				// On Webkit&Gecko (#1113) we use focusin which is fired more often than focus - e.g. when moving from main editable
 				// to nested editable (or the opposite). Unlock selection all, but restore only when it was locked
 				// for the same active element, what will e.g. mean restoring after displaying dialog.
-				if ( restoreSel && CKEDITOR.env.webkit ) {
+				if ( restoreSel && ( CKEDITOR.env.webkit || CKEDITOR.env.gecko ) ) {
 					restoreSel = editor._.previousActive && editor._.previousActive.equals( doc.getActive() );
 
 					// On Webkit when editor uses divarea, native focus causes editable viewport to scroll
 					// to the top (when there is no active selection inside while focusing) so the scroll
-					// position should be restored after focusing back editable area. (http://dev.ckeditor.com/ticket/14659)
-					if ( restoreSel && editor._.previousScrollTop != null && editor._.previousScrollTop != editable.$.scrollTop ) {
+					// position should be restored after focusing back editable area. (https://dev.ckeditor.com/ticket/14659)
+					var requiresScrollFix = editor._.previousScrollTop != null && editor._.previousScrollTop != editable.$.scrollTop;
+					if ( CKEDITOR.env.webkit && restoreSel && requiresScrollFix ) {
 						editable.$.scrollTop = editor._.previousScrollTop;
 					}
 				}
@@ -779,18 +800,27 @@
 			// Browsers could loose the selection once the editable lost focus,
 			// in such case we need to reproduce it by saving a locked selection
 			// and restoring it upon focus gain.
-			if ( CKEDITOR.env.ie || isInline ) {
+			// Firefox native selection is lost editor.focus is triggered by click (#3136).
+			if ( CKEDITOR.env.ie || CKEDITOR.env.gecko || isInline ) {
 				// For old IEs, we can retrieve the last correct DOM selection upon the "beforedeactivate" event.
 				// For the rest, a more frequent check is required for each selection change made.
-				if ( isMSSelection )
+				if ( isMSSelection ) {
 					editable.attachListener( editable, 'beforedeactivate', saveSel, null, null, -1 );
-				else
+				} else {
 					editable.attachListener( editor, 'selectionCheck', saveSel, null, null, -1 );
+				}
 
 				// Lock the selection and mark it to be restored.
-				// On Webkit we use DOMFocusOut which is fired more often than blur. I.e. it will also be
+				// On Webkit&Gecko (#1113) we use focusout which is fired more often than blur. I.e. it will also be
 				// fired when nested editable is blurred.
-				editable.attachListener( editable, CKEDITOR.env.webkit ? 'DOMFocusOut' : 'blur', function() {
+				editable.attachListener( editable, CKEDITOR.env.webkit || CKEDITOR.env.gecko ? 'focusout' : 'blur', function() {
+					var isFakeOrSingleSelection = lastSel && ( lastSel.isFake || lastSel.getRanges() < 2 );
+
+					// Ignore cases that doesn't produce issue in Firefox (#3136).
+					if ( CKEDITOR.env.gecko && !isInline && isFakeOrSingleSelection ) {
+						return;
+					}
+
 					editor.lockSelection( lastSel );
 					restoreSel = 1;
 				}, null, null, -1 );
@@ -807,7 +837,7 @@
 				editable.attachListener( editable, 'mousedown', function( evt ) {
 					// IE scrolls document to top on right mousedown
 					// when editor has no focus, remember this scroll
-					// position and revert it before context menu opens. (http://dev.ckeditor.com/ticket/5778)
+					// position and revert it before context menu opens. (https://dev.ckeditor.com/ticket/5778)
 					if ( evt.data.$.button == 2 ) {
 						var sel = editor.document.getSelection();
 						if ( !sel || sel.getType() == CKEDITOR.SELECTION_NONE )
@@ -826,7 +856,7 @@
 
 				// When content doc is in standards mode, IE doesn't focus the editor when
 				// clicking at the region below body (on html element) content, we emulate
-				// the normal behavior on old IEs. (http://dev.ckeditor.com/ticket/1659, http://dev.ckeditor.com/ticket/7932)
+				// the normal behavior on old IEs. (https://dev.ckeditor.com/ticket/1659, https://dev.ckeditor.com/ticket/7932)
 				if ( doc.$.compatMode != 'BackCompat' ) {
 					if ( CKEDITOR.env.ie7Compat || CKEDITOR.env.ie6Compat ) {
 						var textRng,
@@ -847,7 +877,7 @@
 									// Handle drag directions.
 									textRng.setEndPoint(
 										startRng.compareEndPoints( 'StartToStart', rngEnd ) < 0 ?
-										'EndToEnd' : 'StartToStart', rngEnd );
+											'EndToEnd' : 'StartToStart', rngEnd );
 
 									// Update selection with new range.
 									textRng.select();
@@ -863,7 +893,7 @@
 								html.removeListener( 'mousemove', onHover );
 								removeListeners();
 
-								// Make it in effect on mouse up. (http://dev.ckeditor.com/ticket/9022)
+								// Make it in effect on mouse up. (https://dev.ckeditor.com/ticket/9022)
 								textRng.select();
 							}
 
@@ -871,8 +901,8 @@
 							// We're sure that the click happens at the region
 							// below body, but not on scrollbar.
 							if ( evt.getTarget().is( 'html' ) &&
-									evt.$.y < html.$.clientHeight &&
-									evt.$.x < html.$.clientWidth ) {
+								evt.$.y < html.$.clientHeight &&
+								evt.$.x < html.$.clientWidth ) {
 								// Start to build the text range.
 								textRng = body.$.createTextRange();
 								moveRangeToPoint( textRng, evt.$.clientX, evt.$.clientY );
@@ -892,7 +922,7 @@
 					if ( CKEDITOR.env.version > 7 && CKEDITOR.env.version < 11 ) {
 						html.on( 'mousedown', function( evt ) {
 							if ( evt.data.getTarget().is( 'html' ) ) {
-								// Limit the text selection mouse move inside of editable. (http://dev.ckeditor.com/ticket/9715)
+								// Limit the text selection mouse move inside of editable. (https://dev.ckeditor.com/ticket/9715)
 								outerDoc.on( 'mouseup', onSelectEnd );
 								html.on( 'mouseup', onSelectEnd );
 							}
@@ -903,27 +933,36 @@
 
 			// We check the selection change:
 			// 1. Upon "selectionchange" event from the editable element. (which might be faked event fired by our code)
-			// 2. After the accomplish of keyboard and mouse events.
+			// 2. After the accomplish of keyboard, mouse and touch (#2276) events.
 			editable.attachListener( editable, 'selectionchange', checkSelectionChange, editor );
 			editable.attachListener( editable, 'keyup', checkSelectionChangeTimeout, editor );
-			// http://dev.ckeditor.com/ticket/14407 - Don't even let anything happen if the selection is in a non-editable element.
-			editable.attachListener( editable, 'keydown', function( evt ) {
-				var sel = this.getSelection( 1 );
-				if ( nonEditableAscendant( sel ) ) {
-					sel.selectElement( nonEditableAscendant( sel ) );
-					evt.data.preventDefault();
-				}
-			}, editor );
+			editable.attachListener( editable, 'touchstart', checkSelectionChangeTimeout, editor );
+			editable.attachListener( editable, 'touchend', checkSelectionChangeTimeout, editor );
+
+			if ( CKEDITOR.env.ie ) {
+				// https://dev.ckeditor.com/ticket/14407 - Don't even let anything happen if the selection is in a non-editable element.
+				editable.attachListener( editable, 'keydown', function( evt ) {
+					var sel = this.getSelection( 1 ),
+						ascendant = getNonEditableAscendant( sel );
+
+					// Prevent changing selection when an ascendant is an entire editable (#1632).
+					if ( ascendant && !ascendant.equals( editable ) ) {
+						sel.selectElement( ascendant );
+						evt.data.preventDefault();
+					}
+				}, editor );
+			}
+
 			// Always fire the selection change on focus gain.
-			// On Webkit do this on DOMFocusIn, because the selection is unlocked on it too and
+			// On Webkit&Gecko (#1113) do this on focusin, because the selection is unlocked on it too and
 			// we need synchronization between those listeners to not lost cached editor._.previousActive property
 			// (which is updated on selectionCheck).
-			editable.attachListener( editable, CKEDITOR.env.webkit ? 'DOMFocusIn' : 'focus', function() {
+			editable.attachListener( editable, CKEDITOR.env.webkit || CKEDITOR.env.gecko ? 'focusin' : 'focus', function() {
 				editor.forceNextSelectionCheck();
 				editor.selectionChange( 1 );
 			} );
 
-			// http://dev.ckeditor.com/ticket/9699: On Webkit&Gecko in inline editor we have to check selection when it was changed
+			// https://dev.ckeditor.com/ticket/9699: On Webkit&Gecko in inline editor we have to check selection when it was changed
 			// by dragging and releasing mouse button outside editable. Dragging (mousedown)
 			// has to be initialized in editable, but for mouseup we listen on document element.
 			if ( isInline && ( CKEDITOR.env.webkit || CKEDITOR.env.gecko ) ) {
@@ -937,11 +976,11 @@
 					mouseDown = 0;
 				} );
 			}
-			// In all other cases listen on simple mouseup over editable, as we did before http://dev.ckeditor.com/ticket/9699.
+			// In all other cases listen on simple mouseup over editable, as we did before https://dev.ckeditor.com/ticket/9699.
 			//
 			// Use document instead of editable in non-IEs for observing mouseup
 			// since editable won't fire the event if selection process started within iframe and ended out
-			// of the editor (http://dev.ckeditor.com/ticket/9851).
+			// of the editor (https://dev.ckeditor.com/ticket/9851).
 			else {
 				editable.attachListener( CKEDITOR.env.ie ? editable : doc.getDocumentElement(), 'mouseup', checkSelectionChangeTimeout, editor );
 			}
@@ -974,7 +1013,7 @@
 			editable.attachListener( editable, 'keydown', getOnKeyDownListener( editor ), null, null, -1 );
 
 			function moveRangeToPoint( range, x, y ) {
-				// Error prune in IE7. (http://dev.ckeditor.com/ticket/9034, http://dev.ckeditor.com/ticket/9110)
+				// Error prune in IE7. (https://dev.ckeditor.com/ticket/9034, https://dev.ckeditor.com/ticket/9110)
 				try {
 					range.moveToPoint( x, y );
 				} catch ( e ) {}
@@ -995,27 +1034,34 @@
 					range = sel.createRange();
 
 				// The selection range is reported on host, but actually it should applies to the content doc.
-				// The parentElement may be null for read only mode in IE10 and below (http://dev.ckeditor.com/ticket/9780).
+				// The parentElement may be null for read only mode in IE10 and below (https://dev.ckeditor.com/ticket/9780).
 				if ( sel.type != 'None' && range.parentElement() && range.parentElement().ownerDocument == doc.$ )
 					range.select();
 			}
 
-			function nonEditableAscendant( sel ) {
-				if ( CKEDITOR.env.ie ) {
-					var range = sel.getRanges()[ 0 ],
-						ascendant = range ? range.startContainer.getAscendant( function( parent ) {
-								return parent.type == CKEDITOR.NODE_ELEMENT &&
-									( parent.getAttribute( 'contenteditable' ) == 'false' || parent.getAttribute( 'contenteditable' ) == 'true' );
-							}, true ) : null ;
+			function getNonEditableAscendant( sel ) {
+				var range = sel.getRanges()[ 0 ];
 
-					return range && ascendant.getAttribute( 'contenteditable' ) == 'false' && ascendant;
+				if ( !range ) {
+					return null;
 				}
+
+				// Fetch first contenteditable parent.
+				var ascendant = range.startContainer.getAscendant( function( parent ) {
+					return parent.type == CKEDITOR.NODE_ELEMENT && parent.hasAttribute( 'contenteditable' );
+				}, true );
+
+				if ( ascendant && ascendant.getAttribute( 'contenteditable' ) === 'false' ) {
+					return ascendant;
+				}
+
+				return null;
 			}
 		} );
 
 		editor.on( 'setData', function() {
 			// Invalidate locked selection when unloading DOM.
-			// (http://dev.ckeditor.com/ticket/9521, http://dev.ckeditor.com/ticket/5217#comment:32 and http://dev.ckeditor.com/ticket/11500#comment:11)
+			// (https://dev.ckeditor.com/ticket/9521, https://dev.ckeditor.com/ticket/5217#comment:32 and https://dev.ckeditor.com/ticket/11500#comment:11)
 			editor.unlockSelection();
 
 			// Webkit's selection will mess up after the data loading.
@@ -1029,7 +1075,7 @@
 			editor.unlockSelection();
 		} );
 
-		// IE9 might cease to work if there's an object selection inside the iframe (http://dev.ckeditor.com/ticket/7639).
+		// IE9 might cease to work if there's an object selection inside the iframe (https://dev.ckeditor.com/ticket/7639).
 		if ( CKEDITOR.env.ie9Compat )
 			editor.on( 'beforeDestroy', clearSelection, null, null, 9 );
 
@@ -1045,7 +1091,7 @@
 		// When loaded data are ready check whether hidden selection container was not loaded.
 		editor.on( 'loadSnapshot', function() {
 			var isElement = CKEDITOR.dom.walker.nodeType( CKEDITOR.NODE_ELEMENT ),
-				// TODO replace with el.find() which will be introduced in http://dev.ckeditor.com/ticket/9764,
+				// TODO replace with el.find() which will be introduced in https://dev.ckeditor.com/ticket/9764,
 				// because it may happen that hidden sel container won't be the last element.
 				last = editor.editable().getLast( isElement );
 
@@ -1073,8 +1119,9 @@
 		}, null, null, 100 );
 
 		editor.on( 'key', function( evt ) {
-			if ( editor.mode != 'wysiwyg' )
+			if ( editor.mode != 'wysiwyg' ) {
 				return;
+			}
 
 			var sel = editor.getSelection();
 			if ( !sel.isFake )
@@ -1092,7 +1139,7 @@
 	} );
 
 	// On WebKit only, we need a special "filling" char on some situations
-	// (http://dev.ckeditor.com/ticket/1272). Here we set the events that should invalidate that char.
+	// (https://dev.ckeditor.com/ticket/1272). Here we set the events that should invalidate that char.
 	if ( CKEDITOR.env.webkit ) {
 		CKEDITOR.on( 'instanceReady', function( evt ) {
 			var editor = evt.editor;
@@ -1107,7 +1154,7 @@
 
 			// Filter Undo snapshot's HTML to get rid of Filling Char Sequence.
 			// Note: CKEDITOR.dom.range.createBookmark2() normalizes snapshot's
-			// bookmarks to anticipate the removal of FCSeq from the snapshot's HTML (http://dev.ckeditor.com/ticket/13816).
+			// bookmarks to anticipate the removal of FCSeq from the snapshot's HTML (https://dev.ckeditor.com/ticket/13816).
 			editor.on( 'getSnapshot', function( evt ) {
 				if ( evt.data ) {
 					evt.data = removeFillingCharSequenceString( evt.data );
@@ -1116,7 +1163,7 @@
 
 			// Filter data to get rid of Filling Char Sequence. Filter on #toDataFormat
 			// instead of #getData because once removed, FCSeq may leave an empty element,
-			// which should be pruned by the dataProcessor (http://dev.ckeditor.com/ticket/13816).
+			// which should be pruned by the dataProcessor (https://dev.ckeditor.com/ticket/13816).
 			// Note: Used low priority to filter when dataProcessor works on strings,
 			// not pseudo–DOM.
 			editor.on( 'toDataFormat', function( evt ) {
@@ -1361,7 +1408,7 @@
 
 		// Selection out of concerned range, empty the selection.
 		// TODO check whether this condition cannot be reverted to its old
-		// form (commented out) after we closed http://dev.ckeditor.com/ticket/10438.
+		// form (commented out) after we closed https://dev.ckeditor.com/ticket/10438.
 		//if ( !( rangeParent && ( root.equals( rangeParent ) || root.contains( rangeParent ) ) ) ) {
 		if ( !(
 			rangeParent &&
@@ -1380,7 +1427,7 @@
 	};
 
 	var styleObjectElements = { img: 1, hr: 1, li: 1, table: 1, tr: 1, td: 1, th: 1, embed: 1, object: 1, ol: 1, ul: 1,
-			a: 1, input: 1, form: 1, select: 1, textarea: 1, button: 1, fieldset: 1, thead: 1, tfoot: 1 };
+		a: 1, input: 1, form: 1, select: 1, textarea: 1, button: 1, fieldset: 1, thead: 1, tfoot: 1 };
 
 	CKEDITOR.tools.extend( CKEDITOR.dom.selection, {
 		_removeFillingCharSequenceString: removeFillingCharSequenceString,
@@ -1430,60 +1477,60 @@
 		 * {@link CKEDITOR#SELECTION_TEXT} or {@link CKEDITOR#SELECTION_ELEMENT}.
 		 */
 		getType: isMSSelection ?
-		function() {
-			var cache = this._.cache;
-			if ( cache.type )
-				return cache.type;
+			function() {
+				var cache = this._.cache;
+				if ( cache.type )
+					return cache.type;
 
-			var type = CKEDITOR.SELECTION_NONE;
+				var type = CKEDITOR.SELECTION_NONE;
 
-			try {
-				var sel = this.getNative(),
-					ieType = sel.type;
+				try {
+					var sel = this.getNative(),
+						ieType = sel.type;
 
-				if ( ieType == 'Text' )
-					type = CKEDITOR.SELECTION_TEXT;
+					if ( ieType == 'Text' )
+						type = CKEDITOR.SELECTION_TEXT;
 
-				if ( ieType == 'Control' )
-					type = CKEDITOR.SELECTION_ELEMENT;
+					if ( ieType == 'Control' )
+						type = CKEDITOR.SELECTION_ELEMENT;
 
-				// It is possible that we can still get a text range
-				// object even when type == 'None' is returned by IE.
-				// So we'd better check the object returned by
-				// createRange() rather than by looking at the type.
-				if ( sel.createRange().parentElement() )
-					type = CKEDITOR.SELECTION_TEXT;
-			} catch ( e ) {}
+					// It is possible that we can still get a text range
+					// object even when type == 'None' is returned by IE.
+					// So we'd better check the object returned by
+					// createRange() rather than by looking at the type.
+					if ( sel.createRange().parentElement() )
+						type = CKEDITOR.SELECTION_TEXT;
+				} catch ( e ) {}
 
-			return ( cache.type = type );
-		} : function() {
-			var cache = this._.cache;
-			if ( cache.type )
-				return cache.type;
+				return ( cache.type = type );
+			} : function() {
+				var cache = this._.cache;
+				if ( cache.type )
+					return cache.type;
 
-			var type = CKEDITOR.SELECTION_TEXT;
+				var type = CKEDITOR.SELECTION_TEXT;
 
-			var sel = this.getNative();
+				var sel = this.getNative();
 
-			if ( !( sel && sel.rangeCount ) )
-				type = CKEDITOR.SELECTION_NONE;
-			else if ( sel.rangeCount == 1 ) {
-				// Check if the actual selection is a control (IMG,
-				// TABLE, HR, etc...).
+				if ( !( sel && sel.rangeCount ) )
+					type = CKEDITOR.SELECTION_NONE;
+				else if ( sel.rangeCount == 1 ) {
+					// Check if the actual selection is a control (IMG,
+					// TABLE, HR, etc...).
 
-				var range = sel.getRangeAt( 0 ),
-					startContainer = range.startContainer;
+					var range = sel.getRangeAt( 0 ),
+						startContainer = range.startContainer;
 
-				if ( startContainer == range.endContainer && startContainer.nodeType == 1 &&
-					( range.endOffset - range.startOffset ) == 1 &&
-					styleObjectElements[ startContainer.childNodes[ range.startOffset ].nodeName.toLowerCase() ] ) {
-					type = CKEDITOR.SELECTION_ELEMENT;
+					if ( startContainer == range.endContainer && startContainer.nodeType == 1 &&
+						( range.endOffset - range.startOffset ) == 1 &&
+						styleObjectElements[ startContainer.childNodes[ range.startOffset ].nodeName.toLowerCase() ] ) {
+						type = CKEDITOR.SELECTION_ELEMENT;
+					}
+
 				}
 
-			}
-
-			return ( cache.type = type );
-		},
+				return ( cache.type = type );
+			},
 
 		/**
 		 * Retrieves the {@link CKEDITOR.dom.range} instances that represent the current selection.
@@ -1500,195 +1547,195 @@
 		 */
 		getRanges: ( function() {
 			var func = isMSSelection ? ( function() {
-				function getNodeIndex( node ) {
-					return new CKEDITOR.dom.node( node ).getIndex();
-				}
-
-				// Finds the container and offset for a specific boundary
-				// of an IE range.
-				var getBoundaryInformation = function( range, start ) {
-					// Creates a collapsed range at the requested boundary.
-					range = range.duplicate();
-					range.collapse( start );
-
-					// Gets the element that encloses the range entirely.
-					var parent = range.parentElement();
-
-					// Empty parent element, e.g. <i>^</i>
-					if ( !parent.hasChildNodes() )
-						return { container: parent, offset: 0 };
-
-					var siblings = parent.children,
-						child, sibling,
-						testRange = range.duplicate(),
-						startIndex = 0,
-						endIndex = siblings.length - 1,
-						index = -1,
-						position, distance, container;
-
-					// Binary search over all element children to test the range to see whether
-					// range is right on the boundary of one element.
-					while ( startIndex <= endIndex ) {
-						index = Math.floor( ( startIndex + endIndex ) / 2 );
-						child = siblings[ index ];
-						testRange.moveToElementText( child );
-						position = testRange.compareEndPoints( 'StartToStart', range );
-
-						if ( position > 0 )
-							endIndex = index - 1;
-						else if ( position < 0 )
-							startIndex = index + 1;
-						else
-							return { container: parent, offset: getNodeIndex( child ) };
+					function getNodeIndex( node ) {
+						return new CKEDITOR.dom.node( node ).getIndex();
 					}
 
-					// All children are text nodes,
-					// or to the right hand of test range are all text nodes. (http://dev.ckeditor.com/ticket/6992)
-					if ( index == -1 || index == siblings.length - 1 && position < 0 ) {
-						// Adapt test range to embrace the entire parent contents.
-						testRange.moveToElementText( parent );
-						testRange.setEndPoint( 'StartToStart', range );
+					// Finds the container and offset for a specific boundary
+					// of an IE range.
+					var getBoundaryInformation = function( range, start ) {
+						// Creates a collapsed range at the requested boundary.
+						range = range.duplicate();
+						range.collapse( start );
 
-						// IE report line break as CRLF with range.text but
-						// only LF with textnode.nodeValue, normalize them to avoid
-						// breaking character counting logic below. (http://dev.ckeditor.com/ticket/3949)
-						distance = testRange.text.replace( /(\r\n|\r)/g, '\n' ).length;
+						// Gets the element that encloses the range entirely.
+						var parent = range.parentElement();
 
-						siblings = parent.childNodes;
+						// Empty parent element, e.g. <i>^</i>
+						if ( !parent.hasChildNodes() )
+							return { container: parent, offset: 0 };
 
-						// Actual range anchor right beside test range at the boundary of text node.
-						if ( !distance ) {
-							child = siblings[ siblings.length - 1 ];
+						var siblings = parent.children,
+							child, sibling,
+							testRange = range.duplicate(),
+							startIndex = 0,
+							endIndex = siblings.length - 1,
+							index = -1,
+							position, distance, container;
 
-							if ( child.nodeType != CKEDITOR.NODE_TEXT )
-								return { container: parent, offset: siblings.length };
+						// Binary search over all element children to test the range to see whether
+						// range is right on the boundary of one element.
+						while ( startIndex <= endIndex ) {
+							index = Math.floor( ( startIndex + endIndex ) / 2 );
+							child = siblings[ index ];
+							testRange.moveToElementText( child );
+							position = testRange.compareEndPoints( 'StartToStart', range );
+
+							if ( position > 0 )
+								endIndex = index - 1;
+							else if ( position < 0 )
+								startIndex = index + 1;
 							else
-								return { container: child, offset: child.nodeValue.length };
-						}
-
-						// Start the measuring until distance overflows, meanwhile count the text nodes.
-						var i = siblings.length;
-						while ( distance > 0 && i > 0 ) {
-							sibling = siblings[ --i ];
-							if ( sibling.nodeType == CKEDITOR.NODE_TEXT ) {
-								container = sibling;
-								distance -= sibling.nodeValue.length;
-							}
-						}
-
-						return { container: container, offset: -distance };
-					}
-					// Test range was one offset beyond OR behind the anchored text node.
-					else {
-						// Adapt one side of test range to the actual range
-						// for measuring the offset between them.
-						testRange.collapse( position > 0 ? true : false );
-						testRange.setEndPoint( position > 0 ? 'StartToStart' : 'EndToStart', range );
-
-						// IE report line break as CRLF with range.text but
-						// only LF with textnode.nodeValue, normalize them to avoid
-						// breaking character counting logic below. (http://dev.ckeditor.com/ticket/3949)
-						distance = testRange.text.replace( /(\r\n|\r)/g, '\n' ).length;
-
-						// Actual range anchor right beside test range at the inner boundary of text node.
-						if ( !distance )
-							return { container: parent, offset: getNodeIndex( child ) + ( position > 0 ? 0 : 1 ) };
-
-						// Start the measuring until distance overflows, meanwhile count the text nodes.
-						while ( distance > 0 ) {
-							try {
-								sibling = child[ position > 0 ? 'previousSibling' : 'nextSibling' ];
-								if ( sibling.nodeType == CKEDITOR.NODE_TEXT ) {
-									distance -= sibling.nodeValue.length;
-									container = sibling;
-								}
-								child = sibling;
-							}
-							// Measurement in IE could be sometimes wrong because of <select> element. (http://dev.ckeditor.com/ticket/4611)
-							catch ( e ) {
 								return { container: parent, offset: getNodeIndex( child ) };
-							}
 						}
 
-						return { container: container, offset: position > 0 ? -distance : container.nodeValue.length + distance };
-					}
-				};
+						// All children are text nodes,
+						// or to the right hand of test range are all text nodes. (https://dev.ckeditor.com/ticket/6992)
+						if ( index == -1 || index == siblings.length - 1 && position < 0 ) {
+							// Adapt test range to embrace the entire parent contents.
+							testRange.moveToElementText( parent );
+							testRange.setEndPoint( 'StartToStart', range );
 
-				return function() {
-					// IE doesn't have range support (in the W3C way), so we
-					// need to do some magic to transform selections into
-					// CKEDITOR.dom.range instances.
+							// IE report line break as CRLF with range.text but
+							// only LF with textnode.nodeValue, normalize them to avoid
+							// breaking character counting logic below. (https://dev.ckeditor.com/ticket/3949)
+							distance = testRange.text.replace( /(\r\n|\r)/g, '\n' ).length;
 
-					var sel = this.getNative(),
-						nativeRange = sel && sel.createRange(),
-						type = this.getType(),
-						range;
+							siblings = parent.childNodes;
 
-					if ( !sel )
-						return [];
+							// Actual range anchor right beside test range at the boundary of text node.
+							if ( !distance ) {
+								child = siblings[ siblings.length - 1 ];
 
-					if ( type == CKEDITOR.SELECTION_TEXT ) {
-						range = new CKEDITOR.dom.range( this.root );
+								if ( child.nodeType != CKEDITOR.NODE_TEXT )
+									return { container: parent, offset: siblings.length };
+								else
+									return { container: child, offset: child.nodeValue.length };
+							}
 
-						var boundaryInfo = getBoundaryInformation( nativeRange, true );
-						range.setStart( new CKEDITOR.dom.node( boundaryInfo.container ), boundaryInfo.offset );
+							// Start the measuring until distance overflows, meanwhile count the text nodes.
+							var i = siblings.length;
+							while ( distance > 0 && i > 0 ) {
+								sibling = siblings[ --i ];
+								if ( sibling.nodeType == CKEDITOR.NODE_TEXT ) {
+									container = sibling;
+									distance -= sibling.nodeValue.length;
+								}
+							}
 
-						boundaryInfo = getBoundaryInformation( nativeRange );
-						range.setEnd( new CKEDITOR.dom.node( boundaryInfo.container ), boundaryInfo.offset );
+							return { container: container, offset: -distance };
+						}
+						// Test range was one offset beyond OR behind the anchored text node.
+						else {
+							// Adapt one side of test range to the actual range
+							// for measuring the offset between them.
+							testRange.collapse( position > 0 ? true : false );
+							testRange.setEndPoint( position > 0 ? 'StartToStart' : 'EndToStart', range );
 
-						// Correct an invalid IE range case on empty list item. (http://dev.ckeditor.com/ticket/5850)
-						if ( range.endContainer.getPosition( range.startContainer ) & CKEDITOR.POSITION_PRECEDING && range.endOffset <= range.startContainer.getIndex() )
-							range.collapse();
+							// IE report line break as CRLF with range.text but
+							// only LF with textnode.nodeValue, normalize them to avoid
+							// breaking character counting logic below. (https://dev.ckeditor.com/ticket/3949)
+							distance = testRange.text.replace( /(\r\n|\r)/g, '\n' ).length;
 
-						return [ range ];
-					} else if ( type == CKEDITOR.SELECTION_ELEMENT ) {
-						var retval = [];
+							// Actual range anchor right beside test range at the inner boundary of text node.
+							if ( !distance )
+								return { container: parent, offset: getNodeIndex( child ) + ( position > 0 ? 0 : 1 ) };
 
-						for ( var i = 0; i < nativeRange.length; i++ ) {
-							var element = nativeRange.item( i ),
-								parentElement = element.parentNode,
-								j = 0;
+							// Start the measuring until distance overflows, meanwhile count the text nodes.
+							while ( distance > 0 ) {
+								try {
+									sibling = child[ position > 0 ? 'previousSibling' : 'nextSibling' ];
+									if ( sibling.nodeType == CKEDITOR.NODE_TEXT ) {
+										distance -= sibling.nodeValue.length;
+										container = sibling;
+									}
+									child = sibling;
+								}
+									// Measurement in IE could be sometimes wrong because of <select> element. (https://dev.ckeditor.com/ticket/4611)
+								catch ( e ) {
+									return { container: parent, offset: getNodeIndex( child ) };
+								}
+							}
 
+							return { container: container, offset: position > 0 ? -distance : container.nodeValue.length + distance };
+						}
+					};
+
+					return function() {
+						// IE doesn't have range support (in the W3C way), so we
+						// need to do some magic to transform selections into
+						// CKEDITOR.dom.range instances.
+
+						var sel = this.getNative(),
+							nativeRange = sel && sel.createRange(),
+							type = this.getType(),
+							range;
+
+						if ( !sel )
+							return [];
+
+						if ( type == CKEDITOR.SELECTION_TEXT ) {
 							range = new CKEDITOR.dom.range( this.root );
 
-							for ( ; j < parentElement.childNodes.length && parentElement.childNodes[ j ] != element; j++ ) {
+							var boundaryInfo = getBoundaryInformation( nativeRange, true );
+							range.setStart( new CKEDITOR.dom.node( boundaryInfo.container ), boundaryInfo.offset );
 
+							boundaryInfo = getBoundaryInformation( nativeRange );
+							range.setEnd( new CKEDITOR.dom.node( boundaryInfo.container ), boundaryInfo.offset );
+
+							// Correct an invalid IE range case on empty list item. (https://dev.ckeditor.com/ticket/5850)
+							if ( range.endContainer.getPosition( range.startContainer ) & CKEDITOR.POSITION_PRECEDING && range.endOffset <= range.startContainer.getIndex() )
+								range.collapse();
+
+							return [ range ];
+						} else if ( type == CKEDITOR.SELECTION_ELEMENT ) {
+							var retval = [];
+
+							for ( var i = 0; i < nativeRange.length; i++ ) {
+								var element = nativeRange.item( i ),
+									parentElement = element.parentNode,
+									j = 0;
+
+								range = new CKEDITOR.dom.range( this.root );
+
+								for ( ; j < parentElement.childNodes.length && parentElement.childNodes[ j ] != element; j++ ) {
+
+								}
+
+								range.setStart( new CKEDITOR.dom.node( parentElement ), j );
+								range.setEnd( new CKEDITOR.dom.node( parentElement ), j + 1 );
+								retval.push( range );
 							}
 
-							range.setStart( new CKEDITOR.dom.node( parentElement ), j );
-							range.setEnd( new CKEDITOR.dom.node( parentElement ), j + 1 );
-							retval.push( range );
+							return retval;
 						}
 
-						return retval;
+						return [];
+					};
+				} )() :
+				function() {
+					// On browsers implementing the W3C range, we simply
+					// transform the native ranges in CKEDITOR.dom.range
+					// instances.
+
+					var ranges = [],
+						range,
+						sel = this.getNative();
+
+					if ( !sel )
+						return ranges;
+
+					for ( var i = 0; i < sel.rangeCount; i++ ) {
+						var nativeRange = sel.getRangeAt( i );
+
+						range = new CKEDITOR.dom.range( this.root );
+
+						range.setStart( new CKEDITOR.dom.node( nativeRange.startContainer ), nativeRange.startOffset );
+						range.setEnd( new CKEDITOR.dom.node( nativeRange.endContainer ), nativeRange.endOffset );
+						ranges.push( range );
 					}
-
-					return [];
-				};
-			} )() :
-			function() {
-				// On browsers implementing the W3C range, we simply
-				// transform the native ranges in CKEDITOR.dom.range
-				// instances.
-
-				var ranges = [],
-					range,
-					sel = this.getNative();
-
-				if ( !sel )
 					return ranges;
-
-				for ( var i = 0; i < sel.rangeCount; i++ ) {
-					var nativeRange = sel.getRangeAt( i );
-
-					range = new CKEDITOR.dom.range( this.root );
-
-					range.setStart( new CKEDITOR.dom.node( nativeRange.startContainer ), nativeRange.startOffset );
-					range.setEnd( new CKEDITOR.dom.node( nativeRange.endContainer ), nativeRange.endOffset );
-					ranges.push( range );
-				}
-				return ranges;
-			};
+				};
 
 			return function( onlyEditables ) {
 				var cache = this._.cache,
@@ -1701,7 +1748,7 @@
 					return ranges;
 
 				// Split range into multiple by read-only nodes.
-				// Clone ranges array to avoid changing cached ranges (http://dev.ckeditor.com/ticket/11493).
+				// Clone ranges array to avoid changing cached ranges (https://dev.ckeditor.com/ticket/11493).
 				return extractEditableRanges( new CKEDITOR.dom.rangeList( ranges.slice() ) );
 			};
 		} )(),
@@ -1735,11 +1782,11 @@
 
 							// Decrease the range content to exclude particial
 							// selected node on the start which doesn't have
-							// visual impact. ( http://dev.ckeditor.com/ticket/3231 )
+							// visual impact. ( https://dev.ckeditor.com/ticket/3231 )
 							while ( 1 ) {
 								var startContainer = range.startContainer,
 									startOffset = range.startOffset;
-								// Limit the fix only to non-block elements.(http://dev.ckeditor.com/ticket/3950)
+								// Limit the fix only to non-block elements.(https://dev.ckeditor.com/ticket/3950)
 								if ( startOffset == ( startContainer.getChildCount ? startContainer.getChildCount() : startContainer.getLength() ) && !startContainer.isBlockBoundary() )
 									range.setStartAfter( startContainer );
 								else
@@ -1859,8 +1906,9 @@
 		 * @todo
 		 */
 		unlock: function( restore ) {
-			if ( !this.isLocked )
+			if ( !this.isLocked ) {
 				return;
+			}
 
 			if ( restore ) {
 				var selectedElement = this.getSelectedElement(),
@@ -1871,23 +1919,39 @@
 			this.isLocked = 0;
 			this.reset();
 
-			if ( restore ) {
-				// Saved selection may be outdated (e.g. anchored in offline nodes).
-				// Avoid getting broken by such.
-				var common = selectedElement || ranges[ 0 ] && ranges[ 0 ].getCommonAncestor();
-				if ( !( common && common.getAscendant( 'body', 1 ) ) )
-					return;
-
-				if ( isTableSelection( ranges ) ) {
-					// Tables have it's own selection method.
-					performFakeTableSelection.call( this, ranges );
-				} else if ( faked )
-					this.fake( selectedElement );
-				else if ( selectedElement )
-					this.selectElement( selectedElement );
-				else
-					this.selectRanges( ranges );
+			if ( !restore ) {
+				return;
 			}
+
+			// Saved selection may be outdated (e.g. anchored in offline nodes).
+			// Avoid getting broken by such.
+			var common = selectedElement || ranges[ 0 ] && ranges[ 0 ].getCommonAncestor();
+
+			if ( !( common && common.getAscendant( 'body', 1 ) ) ) {
+				return;
+			}
+
+			var editor = this.root.editor;
+
+			// Use fake selection on tables only with tableselection plugin (#3136).
+			if ( editor.plugins.tableselection && isTableSelection( ranges ) ) {
+				// Tables have it's own selection method.
+				performFakeTableSelection.call( this, ranges );
+				return;
+			}
+
+			if ( faked ) {
+				this.fake( selectedElement );
+				return;
+			}
+
+			// When browser supports multi-range selection prioritize restoring ranges (#3136).
+			if ( selectedElement && ranges.length < 2 ) {
+				this.selectElement( selectedElement );
+				return;
+			}
+
+			this.selectRanges( ranges );
 		},
 
 		/**
@@ -1907,7 +1971,6 @@
 				// faked or its clone.
 				if ( this.rev == editor._.fakeSelection.rev ) {
 					delete editor._.fakeSelection;
-
 					removeHiddenSelectionContainer( editor );
 				}
 				else {
@@ -1953,7 +2016,7 @@
 			// Check if there's a hiddenSelectionContainer in editable at some index.
 			// Some ranges may be anchored after the hiddenSelectionContainer and,
 			// once the container is removed while resetting the selection, they
-			// may need new endOffset (one element less within the range) (http://dev.ckeditor.com/ticket/11021 http://dev.ckeditor.com/ticket/11393).
+			// may need new endOffset (one element less within the range) (https://dev.ckeditor.com/ticket/11021 https://dev.ckeditor.com/ticket/11393).
 			if ( hadHiddenSelectionContainer )
 				fixRangesAfterHiddenSelectionContainer( ranges, this.root );
 
@@ -1983,8 +2046,9 @@
 
 			// Handle special case - fake selection of table cells.
 			if ( editor && editor.plugins.tableselection &&
-				CKEDITOR.plugins.tableselection.isSupportedEnvironment &&
-				isTableSelection( ranges ) && !isSelectingTable
+				editor.plugins.tableselection.isSupportedEnvironment() &&
+				isTableSelection( ranges ) && !isSelectingTable &&
+				!ranges[ 0 ]._getTableElement( { table: 1 } ).hasAttribute( 'data-cke-tableselection-ignored' )
 			) {
 				performFakeTableSelection.call( this, ranges );
 				return;
@@ -2023,7 +2087,7 @@
 				if ( range.startContainer.type == CKEDITOR.NODE_ELEMENT && range.startContainer.getName() in nonCells ||
 					range.endContainer.type == CKEDITOR.NODE_ELEMENT && range.endContainer.getName() in nonCells ) {
 					range.shrink( CKEDITOR.NODE_ELEMENT, true );
-					// The range might get collapsed (http://dev.ckeditor.com/ticket/7975). Update cached variable.
+					// The range might get collapsed (https://dev.ckeditor.com/ticket/7975). Update cached variable.
 					collapsed = range.collapsed;
 				}
 
@@ -2065,18 +2129,18 @@
 
 					// Append a temporary <span>&#65279;</span> before the selection.
 					// This is needed to avoid IE destroying selections inside empty
-					// inline elements, like <b></b> (http://dev.ckeditor.com/ticket/253).
+					// inline elements, like <b></b> (https://dev.ckeditor.com/ticket/253).
 					// It is also needed when placing the selection right after an inline
 					// element to avoid the selection moving inside of it.
 					dummySpan = range.document.createElement( 'span' );
-					dummySpan.setHtml( '&#65279;' ); // Zero Width No-Break Space (U+FEFF). See http://dev.ckeditor.com/ticket/1359.
+					dummySpan.setHtml( '&#65279;' ); // Zero Width No-Break Space (U+FEFF). See https://dev.ckeditor.com/ticket/1359.
 					dummySpan.insertBefore( startNode );
 
 					if ( isStartMarkerAlone ) {
 						// To expand empty blocks or line spaces after <br>, we need
 						// instead to have any char, which will be later deleted using the
 						// selection.
-						// \ufeff = Zero Width No-Break Space (U+FEFF). (http://dev.ckeditor.com/ticket/1359)
+						// \ufeff = Zero Width No-Break Space (U+FEFF). (https://dev.ckeditor.com/ticket/1359)
 						range.document.createText( '\ufeff' ).insertBefore( startNode );
 					}
 				}
@@ -2108,7 +2172,7 @@
 			} else {
 				var sel = this.getNative();
 
-				// getNative() returns null if iframe is "display:none" in FF. (http://dev.ckeditor.com/ticket/6577)
+				// getNative() returns null if iframe is "display:none" in FF. (https://dev.ckeditor.com/ticket/6577)
 				if ( !sel )
 					return;
 
@@ -2133,7 +2197,7 @@
 
 							// The following cases has to be considered:
 							// 1. <span contenteditable="false">[placeholder]</span>
-							// 2. <input contenteditable="false"  type="radio"/> (http://dev.ckeditor.com/ticket/6621)
+							// 2. <input contenteditable="false"  type="radio"/> (https://dev.ckeditor.com/ticket/6621)
 							if ( ancestor.isReadOnly() || enclosed && enclosed.isReadOnly() ) {
 								right.setStart( left.startContainer, left.startOffset );
 								ranges.splice( i--, 1 );
@@ -2148,7 +2212,7 @@
 
 					if ( range.collapsed && CKEDITOR.env.webkit && rangeRequiresFix( range ) ) {
 						// Append a zero-width space so WebKit will not try to
-						// move the selection by itself (http://dev.ckeditor.com/ticket/1272).
+						// move the selection by itself (https://dev.ckeditor.com/ticket/1272).
 						var fillingChar = createFillingCharSequenceNode( this.root );
 						range.insertNode( fillingChar );
 
@@ -2207,7 +2271,7 @@
 		fake: function( element, ariaLabel ) {
 			var editor = this.root.editor;
 
-			// Attempt to retrieve aria-label if possible (http://dev.ckeditor.com/ticket/14539).
+			// Attempt to retrieve aria-label if possible (https://dev.ckeditor.com/ticket/14539).
 			if ( ariaLabel === undefined && element.hasAttribute( 'aria-label' ) ) {
 				ariaLabel = element.getAttribute( 'aria-label' );
 			}
@@ -2399,7 +2463,7 @@
 		 * Remove all the selection ranges from the document.
 		 */
 		removeAllRanges: function() {
-			// Don't clear selection outside this selection's root (http://dev.ckeditor.com/ticket/11500).
+			// Don't clear selection outside this selection's root (https://dev.ckeditor.com/ticket/11500).
 			if ( this.getType() == CKEDITOR.SELECTION_NONE )
 				return;
 
@@ -2435,7 +2499,7 @@
  * Selection's revision. This value is incremented every time new
  * selection is created or existing one is modified.
  *
- * @since 4.3
+ * @since 4.3.0
  * @readonly
  * @property {Number} rev
  */
