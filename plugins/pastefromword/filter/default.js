@@ -1081,22 +1081,17 @@
 		},
 
 		removeSymbolText: function( element ) { // ...from a list element.
-			var removed,
-				symbol = element.attributes[ 'cke-symbol' ];
+			var symbol = element.attributes[ 'cke-symbol' ];
+			var symbolFound =  false;
 
 			element.forEach( function( node ) {
 				// Since symbol may contains special characters we use `indexOf` (instead of RegExp) which is sufficient (#877).
-				if ( !removed && node.value.indexOf( symbol ) > -1 ) {
+				if ( !symbolFound && node.value.indexOf( symbol ) > -1 ) {
 
 					node.value = node.value.replace( symbol, '' );
-
-					if ( node.parent.getHtml().match( /^(\s|&nbsp;)*$/ ) ) {
-						removed = node.parent !== element ? node.parent : null;
-					}
+                    symbolFound = true;
 				}
 			}, CKEDITOR.NODE_TEXT );
-
-			removed && removed.remove();
 		},
 
 		setListSymbol: function( list, symbol, level ) {
